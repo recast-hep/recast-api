@@ -4,6 +4,10 @@ import os
 import requests as httprequest
 import json
 
+def user_response(username):
+  r = httprequest.get('{}/recast-response.json?username={}'.format(BASEURL,username))
+  resonses = json.loads(r.content)
+  return resonses
 
 def update(responseuuid,response_file):
   h = {
