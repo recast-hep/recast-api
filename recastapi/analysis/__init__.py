@@ -9,3 +9,19 @@ def analysis(uuid = None):
   r = httprequest.get('{}/recast-analysis{}.json'.format(BASEURL,single_analysis))
   analyses = json.loads(r.content)
   return (analyses[0] if uuid else analyses)
+  
+def createAnalysis(username,title,collaboration,e_print,journal,doi,inspire_url,description):
+  payload = {
+    'username':username,
+    'title':title,
+    'collaboration':collaboration,
+    'e_print':e_print,
+    'journal':journal,
+    'doi':doi,
+    'inspire_url':inspire_url,
+    'description':description,
+  }
+  postbody = '&'.join(['='.join(x) for x in payload.iteritems()])
+  r = httprequest.post('{}/recast-analysis.json'.format(BASEURL), data = payload)
+  return json.loads(r.content)
+  
