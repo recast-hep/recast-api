@@ -12,6 +12,11 @@ def request(uuid = None, maxpage = 100000):
 
 def accept(uuid, username):
   r = httprequest.post('{}/recast-request/{}/accept.json?username={}'.format(BASEURL,uuid,username))
+  if not r.ok:
+    print "http request failed for payload: ".format(postbody)
+    print r.reason
+    print r.content
+    raise RuntimeError
   return json.loads(r.content)['response-uuid']
 
 def add_parameter_point(uuid,username,description,nevents,xsec,filename):
@@ -44,6 +49,9 @@ def create(username,analysisuuid,model_type,title,predefined_model,reason,audien
   
   
   r = httprequest.post('{}/recast-request.json'.format(BASEURL),data=payload)
-  print 'ok'
-  print r
+  if not r.ok:
+    print "http request failed for payload: ".format(postbody)
+    print r.reason
+    print r.content
+    raise RuntimeError
   return r

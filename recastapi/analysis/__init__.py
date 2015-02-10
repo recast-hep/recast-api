@@ -23,5 +23,10 @@ def createAnalysis(username,title,collaboration,e_print,journal,doi,inspire_url,
   }
   postbody = '&'.join(['='.join(x) for x in payload.iteritems()])
   r = httprequest.post('{}/recast-analysis.json'.format(BASEURL), data = payload)
+  if not r.ok:
+    print "http request failed for payload: ".format(postbody)
+    print r.reason
+    print r.content
+    raise RuntimeError
   return json.loads(r.content)
   
