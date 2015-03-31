@@ -5,7 +5,7 @@ import requests as httprequest
 import json
 
 def user_response(username):
-  r = httprequest.get('{}/recast-response.json?username={}'.format(BASEURL,username))
+  r = httprequest.get('{}/recast-response.json?pagesize=100000&username={}'.format(BASEURL,username))
   resonses = json.loads(r.content)
   return resonses
 
@@ -22,4 +22,8 @@ def update(responseuuid,response_file):
   additionalparams = 'filename={}'.format(os.path.basename(response_file))
   full_url =  urlstring+additionalparams
   r = httprequest.post(full_url,data=open(response_file),headers=h)
+  if not r.ok:
+    print r.reason
+    print r.content
+    raise RuntimeError
   return r

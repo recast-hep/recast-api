@@ -13,7 +13,7 @@ def request(uuid = None, maxpage = 100000):
 def accept(uuid, username):
   r = httprequest.post('{}/recast-request/{}/accept.json?username={}'.format(BASEURL,uuid,username))
   if not r.ok:
-    print "http request failed for payload: ".format(postbody)
+    print "http request failed for payload"
     print r.reason
     print r.content
     raise RuntimeError
