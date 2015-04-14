@@ -8,5 +8,5 @@ setup(
   author = 'Kyle Cranmer, Lukas Heinrich',
   author_email = 'cranmer@cern.ch, lukas.heinrich@cern.ch',
   packages = find_packages(),
-  intall_requires = ['requests']
+  install_requires = ['requests']
 )
