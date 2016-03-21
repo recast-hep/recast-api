@@ -1,4 +1,5 @@
 BASEURL = 'http://recast.perimeterinstitute.ca/dev/api'
+BASEURL = 'http://recast-rest-api.herokuapp.com'
 
 import os
 import requests as httprequest
