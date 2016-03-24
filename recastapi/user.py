@@ -3,7 +3,7 @@ import requests as httprequest
 import json
 import recastapi
 
-def createUser(name, email, orcid_id):
+def createUser(name, email, orcid_id=''):
     payload = {
         'name':name,
         'email':email,
@@ -11,24 +11,22 @@ def createUser(name, email, orcid_id):
         }
     postbody = '&'.join(['='.join(x) for x in payload.iteritems()])
     url = '{}/'.format(recastapi.ENDPOINTS['USERS'])
-    r = httprequest.post(url, data=payload, auth=(recastapi.ORCID_ID, recastapi.ACCESS_TOKEN))
-    if not r.ok:
-        print "http request failed for payload: {} \t due to".format(postbody)
-        print "\t de due to: {}".format(r.reason)
-        print r.content
-        raise RuntimeError
-    return json.loads(r.content)
+    return recastapi.post(url, payload)
 
 def user(id = None):
     single_user = '/{}'.format(id) if id else ''
     url = '{}{}'.format(recastapi.ENDPOINTS['USERS'], single_user)
     r = httprequest.get(url)
-    users = json.loads(r.content)
-    return users
+    return recastapi.get(url)
 
 def userData():
-    if recastapi.ORCID_ID and recastapi.ACCESS_TOKEN:
-        url = '{}'.format(recastapi.ENDPOINTS['USERS'])
-        #search eve
-        
+    if not recastapi.ORCID_ID:
+        print '-'*60
+        print "No ORCID ID and ACCESS TOKEN provide"
+        print "Please provide an ORCID ID"
+        raise RuntimeError
+    url = '{}?where=orcid_id=="{}"'.format(recastapi.ENDPOINTS['USERS'], recastapi.ORCID_ID)
+    print url
+    return recastapi.get(url)
+    
                           

@@ -31,7 +31,7 @@ def add_parameter_point(request_id, parameter_value, filename):
   basic_request = addBasicRequest(point_request['id'])
   parameter_payload = {
     'value': parameter_value,
-    'point_request_id', point_request['id'],
+    'point_request_id': point_request['id'],
     }
   parameter_url = '{}/'.format(recastapi.ENDPOINTS['PARAMETER_POINTS'])
   parameter_response = httprequest.post(parmater_url, data=parameter_payload,
@@ -132,7 +132,7 @@ def createZenodoDeposition(request_uuid, username, orcid_id, description):
                        {
       "access_right": "embargoed",
       "upload_type": "dataset",
-      "creators": [{"name": "Bora, Christian"}]
+      "creators": [{"name": "Bora, Christian"}],
       "description": description,
       "title": "Sample title"
       }
@@ -150,7 +150,7 @@ def uploadToZenodo(ZENODO_ACCESS_TOKEN, deposition_id, file_uuid, zip_file):
   url = "https://zenodo.org/api/deposit/depositions/{}/files?access_token={}".format(
       deposition_id, ZENODO_ACCESS_TOKEN)
   json_data_file = {"filename": file_uuid}
-  files = {'file': open(zip_file), 'rb'}
+  files = {'file': open(zip_file, 'rb')}
   response = httprequest.post(url, data=json_data_file, files=files)
   if not response.ok:
     print "http request failed for deposition files"
