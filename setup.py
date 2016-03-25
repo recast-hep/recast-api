@@ -12,5 +12,6 @@ setup(
   ['requests',
    'werkzeug',
    'boto3',
+   'termcolor',
    ]
 )

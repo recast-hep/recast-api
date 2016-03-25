@@ -9,7 +9,8 @@ ENDPOINTS = {
     'PARAMETER_POINTS': BASEURL + 'parameter_points',
     'SUBSCRIPTIONS': BASEURL + 'subscriptions',
     'BASIC_REQUESTS': BASEURL + 'basic_requests',
-    'POINT_REQUESTS': BASEURL + 'point_requests'
+    'POINT_REQUESTS': BASEURL + 'point_requests',
+    'RUN_CONDITIONS': BASEURL + 'run_conditions'
     }
 
 ORCID_ID = ''
