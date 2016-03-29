@@ -3,8 +3,8 @@ import requests as httprequest
 import traceback, sys
 import json
 
-def post(url, data=None):
-    response = httprequest.post(url, data=data, auth=(ORCID_ID, ACCESS_TOKEN))
+def post(url, data=None, params=None):
+    response = httprequest.post(url, data=data, auth=(ORCID_ID, ACCESS_TOKEN), params=params)
     if not response.ok:
         print '-'*60
         print "Exception in user code:", response.status_code
@@ -20,8 +20,8 @@ def post(url, data=None):
     return json.loads(response.content)
         
 
-def get(url):
-    response = httprequest.get(url)
+def get(url, params=None):
+    response = httprequest.get(url, params=params)
     if not response.ok:
         print '-'*60
         print "Exception in user code:"
