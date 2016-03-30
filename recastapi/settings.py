@@ -1,5 +1,4 @@
-#BASEURL = 'https://recast-rest-api.herokuapp.com/'
-BASEURL = 'http://127.0.0.1:5000/'
+BASEURL = 'https://recast-rest-api.herokuapp.com/'
 
 ENDPOINTS = {
     'USERS': BASEURL + 'users',
