@@ -1,10 +1,23 @@
 from settings import *
 import requests as httprequest
 import traceback, sys
-import json
+import json as json_obj
 
-def post(url, data=None, params=None):
-    response = httprequest.post(url, data=data, auth=(ORCID_ID, ACCESS_TOKEN), params=params)
+def post(url, data=None, params=None, files=None, json=None):
+    print "-*"*30
+    try:
+        print type(data['value'])
+    except Exception, e:
+        pass
+    print data
+    print json
+    response = httprequest.post(url, 
+                                data=data, 
+                                auth=(ORCID_ID, ACCESS_TOKEN), 
+                                params=params,
+                                files=files,
+                                json=json)
+    print response
     if not response.ok:
         print '-'*60
         print "Exception in user code:", response.status_code
@@ -17,7 +30,7 @@ def post(url, data=None, params=None):
         print "*** exception:"
         traceback.print_tb(exc_type, exc_value, exc_traceback)
         raise RuntimeError
-    return json.loads(response.content)
+    return json_obj.loads(response.content)
         
 
 def get(url, params=None):
@@ -33,4 +46,4 @@ def get(url, params=None):
         print "*** exception:"
         traceback.print_tb(exc_type, exc_value, exc_traceback)
         raise RuntimeError
-    return json.loads(response.content)
+    return json_obj.loads(response.content)
