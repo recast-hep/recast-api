@@ -90,19 +90,42 @@ def download_archive(basic_response_id, download_path=None):
   if len(url_response['_items']) < 2 and not len(url_response['_items']) == 0:
     url = ('{}/{}'.format(recastapi.ENDPOINTS['HISTOGRAMS'], 
                           url_response['_items'][0]['id']))
-    response = recastapi.get(url, params={'download': 1, 'path': download_path})
-    print colored('Successfully downloaded file {}'.format(download_path), 'green')
+    response = recastapi.get(url)
+    link = response['file_link']
+    if link:
+      zip_file = urrllib.URLopener()
+      zip_file.retrieve(link, download_path or response['original_file_name'])
+      response['file_link'] = download_path or response['original_file_name']
+      print colored('Successfully downloaded file {}'.format(
+          download_path), 'green')
+    else:
+      response['file_path'] = ''
+      print colored('Faile to download file {}'.format(
+          download_path or response['original_file_name']), 'red')
+      print colored('\t Please check if this request is associated with a file', 'red')
+      
     responses.append(response)
   else:
     for i, val in enumerate(url_response['_items']):
-      url = ('{}/{}{}'.format(recastapi.ENDPOINTS['HISTOGRAMS'],
-                              url_response['_items'][i]['id']))
+      url = ('{}/{}'.format(recastapi.ENDPOINTS['HISTOGRAMS'],
+                              url_response['_items'][i]['id']))      
+      response = recastapi.get(url)
       if not download_path:
-        download_path = '{}_{}'.format(
-          files_urls['_items'][i]['original_file_name'], str(i))
+        file_path= '{}_{}'.format(
+          response['_items'][i]['original_file_name'], str(i))
       else:
-        download_path = '{}_{}'.format(download_path, str(i))
-      response = recastapi.get(url, params={'download': 1, 'path': download_path})
-      print colored('Successfully downloaded file {}'.format(download_path), 'green')
+        file_path = '{}_{}'.format(download_path, str(i))
+        
+      link = response['file_link']
+      if link:
+        zip_file = urllib.URLopener()
+        zip_file.retrieve(link, file_path)
+        response['file_path'] = file_path
+        print colored('Successfully downloaded file {}'.format(
+            file_path), 'green')
+      else:
+        response['file_path'] = ''
+        print colored('Failed to download file {}'.format(file_path), 'red')
+        print colored('\t Please check if this request is associated with a file', 'red')
       responses.append(response)
   return responses
