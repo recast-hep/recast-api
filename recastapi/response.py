@@ -94,7 +94,7 @@ def download_archive(basic_response_id, download_path=None):
     response = recastapi.get(url)
     link = response['file_link']
     if link:
-      zip_file = urrllib.URLopener()
+      zip_file = urllib.URLopener()
       zip_file.retrieve(link, download_path or response['original_file_name'])
       response['file_link'] = download_path or response['original_file_name']
       print colored('Successfully downloaded file {}'.format(
