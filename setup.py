@@ -13,5 +13,6 @@ setup(
    'werkzeug',
    'boto3',
    'termcolor',
+   'urllib',
    ]
 )

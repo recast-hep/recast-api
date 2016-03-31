@@ -3,6 +3,7 @@ import requests as httprequest
 import json
 import recastapi
 from termcolor import colored
+import urllib
 
 def response(id = None):
   single_response = '/{}'.format(id) if id else ''
