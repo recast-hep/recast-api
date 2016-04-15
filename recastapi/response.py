@@ -4,18 +4,29 @@ import json
 import recastapi
 from termcolor import colored
 import urllib
+import uuid
 
 def response(id = None):
+  """Lists all responses.
+  
+  """
   single_response = '/{}'.format(id) if id else ''
   url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSES'], single_response)
   return recastapi.get(url)
 
 def user_response(username):
+  """Lists all responses associated to a user.
+  
+  
+  """
   r = httprequest.get('{}/responses.json?pagesize=100000&username={}'.format(BASEURL,username))
   resonses = json.loads(r.content)
   return resonses
 
 def create(request_id, model_id=None):
+  """create response.
+
+  """
   payload = {
     'model_id': model_id
     }
@@ -27,6 +38,9 @@ def add_point_response(lumi_weighted_efficiency, luminosity,
                      lower_1sig, upper_1sig, lower_2sig, upper_2sig, 
                      signal_template, log_likelihood, model_id,
                      response_id, point_request_id):
+  """Adds point response.
+  
+  """
   payload = {
     'lumi_weighted_efficiency': lumi_weighted_efficiency,
     'total_luminosity': luminosity,
@@ -47,6 +61,9 @@ def add_basic_response(efficiency=None, luminosity=None, lower_1sig=None, upper_
                      lower_2sig_rate=None, upper_2sig_rate=None, log_likelihood=None,
                        reference_cross_section=None, model_id=None,
                      point_response_id=None, basic_request_id=None):
+  """Adds basic response.
+  
+  """
   payload = {
     'overall_efficiency': efficiency,
     'nominal_luminosity': luminosity,
@@ -69,6 +86,12 @@ def add_basic_response(efficiency=None, luminosity=None, lower_1sig=None, upper_
 def upload_file(basic_response_id, file_name, 
                 point_response_id=None, file_path=None,
                 histo_name=None, histo_path=None):
+  """Uploads response file 
+
+     Double check how the filename of response will be provided
+     i.e. common name or uuid?
+  """
+  #file_uuid = str(uuid.uuid1) # how will response provi
   payload = {
     'file_name': file_name,
     'file_path': file_path,
@@ -82,6 +105,9 @@ def upload_file(basic_response_id, file_name,
   return recastapi.post(url, data=payload, files=files)
 
 def download_archive(basic_response_id, download_path=None):
+  """Downloads response file to user specified path.
+
+  """
   files_urls = '{}?where=basic_response_id=="{}"'.format(
     recastapi.ENDPOINTS['HISTOGRAMS'], basic_response_id)
   
