@@ -105,7 +105,7 @@ def download(request_id, point_request_index=0, basic_request_index=0, download_
   response_point_request = recastapi.get(url_point_request)
   if len(response_point_request['_items']) < point_request_index:
     print colored('ERR: Point request index out of range. Max range is {}'.format(
-        len(response_point_resquest['_items'])), 'red')
+        len(response_point_request['_items'])), 'red')
     return
   
   url_basic_request = '{}?where=point_request_id=="{}"'.format(
