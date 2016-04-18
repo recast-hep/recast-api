@@ -86,7 +86,44 @@ def download_file(basic_request_id, download_path=None):
       responses.append(response)
   return responses
 
-def download_file_given_request(request_id, download_path=None):
+def download(request_id, point_request_index=0, basic_request_index=0, download_path=None):
+  """Downloads file associated with a given request, index through point and basic requests.
+
+  Args:
+      request_id: ID of the request.
+      point_request_index: index of the point request 0..N-1.
+      basic_request_index: index of basic request 0..M-1.
+  Returns:
+      JSON object with metadata of files downloaded on disk.
+  """
+  print colored('Downloading....', 'cyan')
+  print colored('Request: {}.\n\t Point request index: {}. \n\t\t Basic request index: {}.'.format(
+      request_id, point_request_index, basic_request_index), 'cyan')
+  url_point_request = '{}?where=scan_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+  
+  response_point_request = recastapi.get(url_point_request)
+  if len(response_point_request['_items']) < point_request_index:
+    print colored('ERR: Point request index out of range. Max range is {}'.format(
+        len(response_point_resquest['_items'])), 'red')
+    return
+  
+  url_basic_request = '{}?where=point_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['BASIC_REQUESTS'],
+    response_point_request['_items'][point_request_index]['id'])
+
+  response_basic_request = recastapi.get(url_basic_request)
+  
+  if len(response_basic_request['_items']) < basic_request_index:
+    print colored('ERR: Basix request index out of range. Max range is {}'.format(
+        len(response_basic_request['_items'])), 'red')
+    return
+  
+  response = download_file(response_basic_request['_items'][basic_request_index]['id'],
+                              download_path)
+  return response
+
+def download_all(request_id, download_path=None):
   """Downloads all files associated with a given request.
 
   Args:
@@ -120,7 +157,31 @@ def download_file_given_request(request_id, download_path=None):
       responses.append(r)
       
   return responses
+
+def request_tree(request_id):
+  """ Prints request tree, including point request, basic_request
   
+  Args:
+      request_id
+      
+  """
+  print "Request ID: ", request_id
+  url_point_request = '{}?where=scan_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+  response_point_request = recastapi.get(url_point_request)
+  
+  for i, point_response in enumerate(response_point_request['_items']):
+    print colored('Point request index: {} -- {}'.format(i, point_response), 'green')
+    
+    url_basic_request = '{}?where=point_request_id=="{}"'.format(
+      recastapi.ENDPOINTS['BASIC_REQUESTS'], point_response['id'])
+
+    response_basic_request = recastapi.get(url_basic_request)
+    
+    for j, basic_response in enumerate(response_basic_request['_items']):
+      print colored('\t *Basic request index: {} -- {}'.format(j, basic_response), 'yellow')
+      
+
 def create(analysis_id, description_model, reason_for_request,
            additional_information, status="Incomplete",
            file_path=None, parameter_value=None, parameter_title=None):
