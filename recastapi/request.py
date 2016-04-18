@@ -106,6 +106,7 @@ def download(request_id, point_request_index=0, basic_request_index=0, download_
   if len(response_point_request['_items']) < point_request_index:
     print colored('ERR: Point request index out of range. Max range is {}'.format(
         len(response_point_request['_items'])), 'red')
+    print colored('\t Given index is {}'.format(point_request_index), 'red')
     return
   
   url_basic_request = '{}?where=point_request_id=="{}"'.format(
