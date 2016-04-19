@@ -7,6 +7,7 @@ import recastapi
 import uuid
 from termcolor import colored
 import urllib
+import yaml
 """Request functionalities.
 
 """
@@ -106,7 +107,6 @@ def download(request_id, point_request_index=0, basic_request_index=0, download_
   if len(response_point_request['_items']) < point_request_index:
     print colored('ERR: Point request index out of range. Max range is {}'.format(
         len(response_point_request['_items'])), 'red')
-    print colored('\t Given index is {}'.format(point_request_index), 'red')
     return
   
   url_basic_request = '{}?where=point_request_id=="{}"'.format(
@@ -172,7 +172,10 @@ def request_tree(request_id):
   response_point_request = recastapi.get(url_point_request)
   
   for i, point_response in enumerate(response_point_request['_items']):
-    print colored('Point request index: {} -- {}'.format(i, point_response), 'green')
+    print colored('Point request index: {} -- {}'
+                  .format(i, yaml.safe_dump(point_response,
+                                            default_flow_style=False)),
+                  'green')
     
     url_basic_request = '{}?where=point_request_id=="{}"'.format(
       recastapi.ENDPOINTS['BASIC_REQUESTS'], point_response['id'])
@@ -180,7 +183,10 @@ def request_tree(request_id):
     response_basic_request = recastapi.get(url_basic_request)
     
     for j, basic_response in enumerate(response_basic_request['_items']):
-      print colored('\t *Basic request index: {} -- {}'.format(j, basic_response), 'yellow')
+      print colored('>>>>>> *Basic request index: {} -- {}'
+                    .format(j, yaml.safe_dump(basic_response, 
+                                              default_flow_style=False)),
+                    'yellow')
       
 
 def create(analysis_id, description_model, reason_for_request,
