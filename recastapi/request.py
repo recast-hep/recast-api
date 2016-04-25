@@ -7,8 +7,19 @@ import recastapi
 import uuid
 from termcolor import colored
 import urllib
+import yaml
+"""Request functionalities.
+
+"""
 
 def request(uuid = None, maxpage = 100000):
+  """Lists all requests.
+  
+  Args:
+      uuid: ID of the request(optional)
+  Returns:
+      JSON object
+  """
   single_analysis = '/{}'.format(uuid) if uuid else ''
   url = '{}{}'.format(recastapi.ENDPOINTS['REQUESTS'], single_analysis)
   return recastapi.get(url)
@@ -17,6 +28,15 @@ def user_request(username):
   pass
 
 def download_file(basic_request_id, download_path=None):
+  """Downloads the zip file associated with a basic request.
+  
+  Args: 
+      basic_request_id: ID of the basic request associated with a file.
+      donwload_path: User specified download path(optional), if not
+                   provided, file takes original file_name.
+  Returns:
+      JSON object containing the metadata of the file, and file downloaded saved on disk.
+  """
   files_urls = '{}?where=basic_request_id=="{}"'.format(
     recastapi.ENDPOINTS['FILES'], basic_request_id)
   
@@ -66,13 +86,126 @@ def download_file(basic_request_id, download_path=None):
 
       responses.append(response)
   return responses
+
+def download(request_id, point_request_index=0, basic_request_index=0, download_path=None):
+  """Downloads file associated with a given request, index through point and basic requests.
+
+  Args:
+      request_id: ID of the request.
+      point_request_index: index of the point request 0..N-1.
+      basic_request_index: index of basic request 0..M-1.
+  Returns:
+      JSON object with metadata of files downloaded on disk.
+  """
+  print colored('Downloading....', 'cyan')
+  print colored('Request: {}.\n\t Point request index: {}. \n\t\t Basic request index: {}.'.format(
+      request_id, point_request_index, basic_request_index), 'cyan')
+  url_point_request = '{}?where=scan_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
   
+  response_point_request = recastapi.get(url_point_request)
+  if len(response_point_request['_items']) < point_request_index:
+    print colored('ERR: Point request index out of range. Max range is {}'.format(
+        len(response_point_request['_items'])), 'red')
+    return
+  
+  url_basic_request = '{}?where=point_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['BASIC_REQUESTS'],
+    response_point_request['_items'][point_request_index]['id'])
+
+  response_basic_request = recastapi.get(url_basic_request)
+  
+  if len(response_basic_request['_items']) < basic_request_index:
+    print colored('ERR: Basix request index out of range. Max range is {}'.format(
+        len(response_basic_request['_items'])), 'red')
+    return
+  
+  response = download_file(response_basic_request['_items'][basic_request_index]['id'],
+                              download_path)
+  return response
+
+def download_all(request_id, download_path=None):
+  """Downloads all files associated with a given request.
+
+  Args:
+      request_id: ID of the request to query.
+      download_path: Filename of the files(still have to come up with logical)
+                 naming convention. Currently, files are downloaded with their original
+                 file name in the current directory
+  Returns:
+      JSON object with metadata of files downloaded on disk
+  """
+  url_point_request = '{}?where=scan_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+
+  response_point_request = recastapi.get(url_point_request)
+  
+  responses = []
+  for response in response_point_request['_items']:
+    
+    url_basic_request = '{}?where=point_request_id=="{}"'.format(
+      recastapi.ENDPOINTS['BASIC_REQUESTS'], response['id'])
+    
+    response_basic_request = recastapi.get(url_basic_request)
+    
+    for response_basic in response_basic_request['_items']:
+      
+      if download_path:
+        """Have to set download path, otherwise files will be overwritten """
+        pass
+        
+      r = download_file(response_basic['id'], download_path=None)
+      responses.append(r)
+      
+  return responses
+
+def request_tree(request_id):
+  """ Prints request tree, including point request, basic_request
+  
+  Args:
+      request_id
+      
+  """
+  print "Request ID: ", request_id
+  url_point_request = '{}?where=scan_request_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+  response_point_request = recastapi.get(url_point_request)
+  
+  for i, point_response in enumerate(response_point_request['_items']):
+    print colored('Point request index: {} -- {}'
+                  .format(i, yaml.safe_dump(point_response,
+                                            default_flow_style=False)),
+                  'green')
+    
+    url_basic_request = '{}?where=point_request_id=="{}"'.format(
+      recastapi.ENDPOINTS['BASIC_REQUESTS'], point_response['id'])
+
+    response_basic_request = recastapi.get(url_basic_request)
+    
+    for j, basic_response in enumerate(response_basic_request['_items']):
+      print colored('>>>>>> *Basic request index: {} -- {}'
+                    .format(j, yaml.safe_dump(basic_response, 
+                                              default_flow_style=False)),
+                    'yellow')
+      
+
 def create(analysis_id, description_model, reason_for_request,
            additional_information, status="Incomplete",
            file_path=None, parameter_value=None, parameter_title=None):
-  """
-     create a request
-          
+  """Creates a request.
+  
+  Args:
+      analysis_id: ID of the analysis.
+      description_model: Detailed description of the model to use.
+      reason_for_request: Reason for submitting this request.
+      additional_information: Any other additional information associated to this request.
+      status: Defaults to Incomplete.
+      file_path: File to be associated with this request, optional variable.
+      parameter_value: Value of the scan parameter, optional.
+      parameter_title: Optional title of the parameter title.
+      
+  Returns:
+      JSON object with data added
   """
   request_uuid = str(uuid.uuid1())
   user = recastapi.user.userData()
@@ -102,8 +235,17 @@ def create(analysis_id, description_model, reason_for_request,
   return request_response
 
 def add_parameter_point(request_id, parameter_value, parameter_title=None, filename=None):
-  """Add a parameter point to a request
-      usually called automatically after create analysis
+  """Add a parameter point to a request.
+
+  Usually called automatically after create analysis
+  Args:
+      request_id: ID of the request to be associated to this parameter point.
+      parameter_value: Value of the scan parameter.
+      parameter_title: Optional title of the scan parameter.
+      filename: Optional file path to file to associate to this parameter point.
+      
+  Returns:
+      JSON object with data added
 
   """
   request_data = request(request_id)
@@ -130,6 +272,17 @@ def add_parameter_point(request_id, parameter_value, parameter_title=None, filen
   return parameter_response
 
 def upload_file(request_id, basic_request_id, filename):
+  """Uploads zip file and associates it with a request and basic request.
+  
+  Args:
+      request_id: ID of the request to be associated to this file.
+      basic_request_id: ID of the basic request to be associated.
+      filename: Path to file to be uploaded.
+      
+  Returns:
+      JSON object
+
+  """
   file_uuid = str(uuid.uuid1())
   request_data = request(request_id)
   payload = {
@@ -146,6 +299,14 @@ def upload_file(request_id, basic_request_id, filename):
   return file_response
   
 def add_point_request(request_id):
+  """Adds point request
+  
+  Args:
+      request_id: ID of the request.
+      
+  Returns:
+      JSON object
+  """
   user = recastapi.user.userData()
   user = user['_items'][0]
   payload = {
@@ -156,6 +317,14 @@ def add_point_request(request_id):
   return recastapi.post(url, data=payload)
   
 def add_basic_request(point_request_id):
+  """Adds basic request
+
+  Args:
+      point_request_id: ID of the point request
+      
+  Returns:
+      JSON object
+  """
   user = recastapi.user.userData()
   user = user['_items'][0]
   payload = {
@@ -166,4 +335,11 @@ def add_basic_request(point_request_id):
   return recastapi.post(url, data=payload)
 
 def update_status(request_id, status):
+  """Updates status of the request.
+  
+  Args: 
+      request_id: ID of the request to be updated
+  Returns:
+      JSON object
+  """
   pass

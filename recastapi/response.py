@@ -4,18 +4,29 @@ import json
 import recastapi
 from termcolor import colored
 import urllib
+import uuid
 
 def response(id = None):
+  """Lists all responses.
+  
+  """
   single_response = '/{}'.format(id) if id else ''
   url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSES'], single_response)
   return recastapi.get(url)
 
 def user_response(username):
+  """Lists all responses associated to a user.
+  
+  
+  """
   r = httprequest.get('{}/responses.json?pagesize=100000&username={}'.format(BASEURL,username))
   resonses = json.loads(r.content)
   return resonses
 
 def create(request_id, model_id=None):
+  """create response.
+
+  """
   payload = {
     'model_id': model_id
     }
@@ -27,6 +38,9 @@ def add_point_response(lumi_weighted_efficiency, luminosity,
                      lower_1sig, upper_1sig, lower_2sig, upper_2sig, 
                      signal_template, log_likelihood, model_id,
                      response_id, point_request_id):
+  """Adds point response.
+  
+  """
   payload = {
     'lumi_weighted_efficiency': lumi_weighted_efficiency,
     'total_luminosity': luminosity,
@@ -47,6 +61,9 @@ def add_basic_response(efficiency=None, luminosity=None, lower_1sig=None, upper_
                      lower_2sig_rate=None, upper_2sig_rate=None, log_likelihood=None,
                        reference_cross_section=None, model_id=None,
                      point_response_id=None, basic_request_id=None):
+  """Adds basic response.
+  
+  """
   payload = {
     'overall_efficiency': efficiency,
     'nominal_luminosity': luminosity,
@@ -69,6 +86,12 @@ def add_basic_response(efficiency=None, luminosity=None, lower_1sig=None, upper_
 def upload_file(basic_response_id, file_name, 
                 point_response_id=None, file_path=None,
                 histo_name=None, histo_path=None):
+  """Uploads response file 
+
+     Double check how the filename of response will be provided
+     i.e. common name or uuid?
+  """
+  #file_uuid = str(uuid.uuid1) # how will response provi
   payload = {
     'file_name': file_name,
     'file_path': file_path,
@@ -82,6 +105,9 @@ def upload_file(basic_response_id, file_name,
   return recastapi.post(url, data=payload, files=files)
 
 def download_archive(basic_response_id, download_path=None):
+  """Downloads response file to user specified path.
+
+  """
   files_urls = '{}?where=basic_response_id=="{}"'.format(
     recastapi.ENDPOINTS['HISTOGRAMS'], basic_response_id)
   
@@ -130,3 +156,63 @@ def download_archive(basic_response_id, download_path=None):
         print colored('\t Please check if this request is associated with a file', 'red')
       responses.append(response)
   return responses
+
+def download(response_id, point_response_index=0, basic_response_index=0, download_path=None):
+  """Downloads file associated with a given request, indexed through point and basic responses.
+  
+  Args:
+      response_id: ID of the response.
+      point_response_index: index of the point request 0..N-1.
+      basic_response_index: index of the basic request 0..M-1.
+  Returns:
+      JSON object with metadata of files downloaded on disk.
+  """
+  
+  print colored('Download...', 'cyan')
+  print colored('Response: {}.\n\t Point response index: {}.\n\t\t Basic response index: {}.'.format(
+      response_id, point_response_index, basic_response_index), 'cyan')
+
+  url_point_response = '{}?where=scan_response_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_RESPONSES'], response_id)
+  
+  response_point = recastapi.get(url_point_response)
+  if len(response_point['_items']) < point_response_index:
+    print colored('ERR: Point response index out range. Max index value is {}'.format(
+        len(response_point['_items'])), 'red')
+    return
+  
+  url_basic_response = '{}?where=point_response_id=="{}"'.format(
+    recastapi.ENDPOINTS['BASIC_RESPONSES'],
+    response_point['_items'][point_response_index]['id'])
+  
+  response_basic = recastapi.get(url_basic_response)
+  
+  if len(response_basic['_items']) < basic_response_index:
+    print colored('ERR: Basic response index out of range. Max index value is {}'.format(
+        len(response_basic['_items'])), 'red')
+    return
+  
+  response = download_archive(response_basic['_items'][basic_response_index_index]['id'],
+                              download_path)
+  return response
+
+def response_tree(response_id):
+  """Prints response tree, nested with point and basic response.
+  
+  Args:
+      response_id:
+  """
+  print "Response ID: ", response_id
+  url_point_response = '{}?where=scan_response_id=="{}"'.format(
+    recastapi.ENDPOINTS['POINT_RESPONSES'], response_id)
+  response_point = recastapi.get(url_point_response)
+  
+  for i, point_response in enumerate(response_point['_items']):
+    print colored('Point response index: {} -- {}'.format(i, point_response), 'green')
+    
+    url_basic_response = '{}?where=point_response_id=="{}"'.format(
+      recastapi.ENDPOINTS['BASIC_RESPONSES'], point_response['id'])
+
+    response_basic = recastapi.get(url_basic_response)
+    for j, basic_response in enumerate(response_basic['_items']):
+      print colored('\t *Basic response index: {} -- {}'.format(j, basic_response), 'yellow')

@@ -3,12 +3,19 @@ import requests as httprequest
 import json
 import recastapi
 
+"""Analysis helper functions to interact with the API.
+
+Provides functionalities to create, lookup, and delete
+"""
+
 def analysis(uuid = None):
-  """List analysis given uuid or all analyses
-  Usage::
-       >>> analysis()
-       
-       >>> returns json object
+  """List analysis given uuid or all analyses.
+
+  Args:
+      uuid: analysis_id.
+  
+  Returns:
+      JSON object containing all analyses retrieved.
   """
   single_analysis = '/{}'.format(uuid) if uuid else ''
   url = '{}{}'.format(recastapi.ENDPOINTS['ANALYSIS'], single_analysis)
@@ -17,11 +24,21 @@ def analysis(uuid = None):
 def create(title, collaboration,
            e_print, journal, doi, inspire_url, 
            description, run_condition_name, run_condition_description):
-  """Create a new analysis and Run Condition
-      collaboration: ALICE, ATLAS,CMS...
-      .
-      .
-      .
+  """Create a new analysis and Run Condition.
+  
+  Args:
+      title: Title of the analysis.
+      collaboration: Choice among: ALICE, ATLAS, CMS, .
+      e_print: link.
+      journal: Name of journal.
+      doi: Arxiv doi?
+      inspire_url: URL on inspire website.
+      description: A detailed description of the analysis.
+      run_condition_name: Name of the run condition.
+      run_condition_descprition: Detailed description of the run condition.
+
+  Returns:
+      JSON object containing data that has been added into DB.
   """
   r_condition_payload = {
     'name': run_condition_name,
@@ -49,3 +66,29 @@ def create(title, collaboration,
   }
   url = '{}/'.format(recastapi.ENDPOINTS['ANALYSIS'])
   return recastapi.post(url, payload)
+
+def edit(analysis_id,
+         title=None,
+         collaboration=None,
+         e_print=None,
+         journal=None,
+         doi=None,
+         inspire_URL=None,
+         description=None,
+         run_condition_id=None):
+  """Edits analysis given the analysis_id(required) and fields to edit.
+
+  The provided fields are only modified.
+  Args:
+      See create function; however all the fields are optional.
+  Retuns:
+      JSON object
+  """
+  pass
+
+         
+def delete(analysis_id):
+  """  Deletes an analysis.
+  
+  """
+  pass

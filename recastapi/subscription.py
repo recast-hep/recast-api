@@ -3,30 +3,22 @@ import requests as httprequest
 import json
 import recastapi
 
-"""
-def subscribe(analysisuuid, username, subscriptiontype, requirements, notifications = []):
-  assert subscriptiontype in ['provider','observer']
-  for notif in notifications:
-    assert notif in ['recast_requests','recast_responses','new_subscribers']
-  payload = {
-    'analysis-uuid':analysisuuid,
-    'username':username,
-    'subscription-type':subscriptiontype,
-    'requirements':requirements,
-    'notifications':','.join(notifications)
-  }
-  postbody = '&'.join(['='.join(x) for x in payload.iteritems()])
-  r = httprequest.post('{}/recast-subscription.json'.format(BASEURL), data = payload)
-  if not r.ok:
-    print "http request failed for payload: ".format(postbody)
-    print r.reason
-    print r.content
-    raise RuntimeError
-  return json.loads(r.content)
+"""Subscriptions functions.
+
 """
 
 def create(analysis_id, subscription_type, description, 
            requirements, notifications=[], authoritative='False'):
+  """ Creates a subscription.
+  
+  Usage::
+
+  """
+  assert subscription_type in ['provider', 'observer']
+  for notif in notifications:
+    assert notif in ['recast_requests', 'recast_responses', 'new_subscribers']
+    
+
   user = recastapi.user.userData()
   payload = {
     'subscription_type': subscription_type,
@@ -34,17 +26,29 @@ def create(analysis_id, subscription_type, description,
     'requirements': requirements,
     'notification': ','.join(notifications),
     'authoritative': authoritative,
-    'subscriber_id': user['id'],
+    'subscriber_id': user['_items'][0]['id'],
     'analysis_id': analysis_id,
     }
   url = '{}/'.format(recastapi.ENDPOINTS['SUBSCRIPTIONS'])
   return recastapi.post(url, payload)
 
 
-def unsubscribe(analysis_id=None):
-  pass
+def unsubscribe(subscription_id):
+  """Deletes subscription.
+
+     TO-DO: check if the user is allowed to delete the subscription
+
+  """
+  url = '{}/{}'.format(recastapi.ENDPOINTS['SUBSCRIPTIONS'],
+                       subscription_id)
+  return recastapi.delete(url)
+  
 
 def my_subscriptions():
+  """Lists your subscriptions.
+
+  ORCID ID has to be provided
+  """
   if not recastapi.ORCID_ID:
     print "Can't list your subscriptions."
     print "Please provide an ORCID_ID and ACCESS_TOKEN"
