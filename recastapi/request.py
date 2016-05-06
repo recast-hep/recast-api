@@ -4,6 +4,7 @@ import json
 from werkzeug import secure_filename
 from boto3.session import Session
 import recastapi
+import recastapi.user
 import uuid
 from termcolor import colored
 import urllib
