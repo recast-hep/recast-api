@@ -1,4 +1,4 @@
-from settings import *
+from settings import ORCID_ID, ACCESS_TOKEN, ENDPOINTS, BASEURL
 import requests as httprequest
 import traceback, sys
 import json as json_obj
