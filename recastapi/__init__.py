@@ -9,7 +9,6 @@ def print_failure(response):
     print "\t HTTP request failed"
     print "\t due to: {}".format(response.reason)
     print "\t ", response.content
-    print "\t data: ", data
     print '\n'
     exc_type, exc_value, exc_traceback = sys.exc_info()
     print "*** exception:"
