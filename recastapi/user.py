@@ -51,7 +51,6 @@ def userData():
         print "Please provide an ORCID ID"
         raise RuntimeError
     url = '{}?where=orcid_id=="{}"'.format(recastapi.ENDPOINTS['USERS'], recastapi.ORCID_ID)
-    print url
     return recastapi.get(url)
     
                           
