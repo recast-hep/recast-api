@@ -1,12 +1,14 @@
 from werkzeug import secure_filename
 from boto3.session import Session
 import recastapi
+import recastapi.user
 import uuid
 from termcolor import colored
 import urllib
 import yaml
 import json
 '''Request functionalities.'''
+
 
 def request(uuid = None, maxpage = 100000):
   """Lists all requests.
