@@ -9,9 +9,6 @@ import uuid
 from termcolor import colored
 import urllib
 import yaml
-"""Request functionalities.
-
-"""
 
 def request(uuid = None, maxpage = 100000):
   """Lists all requests.
