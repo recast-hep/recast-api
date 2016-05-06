@@ -13,5 +13,8 @@ setup(
    'werkzeug',
    'boto3',
    'termcolor',
+   'pyopenssl',
+   'ndg-httpslclient',
+   'pyasn1',
    ]
 )

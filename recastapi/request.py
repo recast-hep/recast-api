@@ -5,9 +5,8 @@ import uuid
 from termcolor import colored
 import urllib
 import yaml
-"""Request functionalities.
-
-"""
+import json
+'''Request functionalities.'''
 
 def request(uuid = None, maxpage = 100000):
   """Lists all requests.
@@ -314,12 +313,13 @@ def add_point_request(request_id):
   user = recastapi.user.userData()
   user = user['_items'][0]
   payload = {
-    'requester_id': user['id'],
-    'scan_request_id': request_id,
+    "scan_request_id": request_id,
+    "requester_id": user['id'],
     }
+
   print colored(payload, 'yellow')
-  url = '{}/'.format(recastapi.ENDPOINTS['POINT_REQUESTS'])
-  return recastapi.post(url, data=payload)
+  url = '{}'.format(recastapi.ENDPOINTS['POINT_REQUESTS'])
+  return recastapi.post(url, json=payload)
   
 def add_basic_request(point_request_id):
   """Adds basic request
