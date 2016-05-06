@@ -1,6 +1,3 @@
-import os
-import requests as httprequest
-import json
 from werkzeug import secure_filename
 from boto3.session import Session
 import recastapi
@@ -25,7 +22,8 @@ def request(uuid = None, maxpage = 100000):
 def user_request(username):
   pass
 
-def download_file(basic_request_id, download_path=None):
+def download_file(basic_request_id, download_path=None, dry_run=False):
+  
   """Downloads the zip file associated with a basic request.
   
   Args: 
@@ -47,11 +45,15 @@ def download_file(basic_request_id, download_path=None):
     response = recastapi.get(url)
     link = response['file_link']
     if link:
-      zip_file = urllib.URLopener()
-      zip_file.retrieve(link, download_path or response['original_file_name'])
-      response['file_path'] = download_path or response['original_file_name']
-      print colored('Successfully downloaded file {}'.format(
-          download_path), 'green')
+      if not dry_run:
+        zip_file = urllib.URLopener()
+        zip_file.retrieve(link, download_path or response['original_file_name'])
+        response['file_path'] = download_path or response['original_file_name']
+        print colored('Successfully downloaded file {}'.format(
+            download_path or response['original_file_name']), 'green')
+      else:
+        print colored('File link: {}'.format(
+            response['file_link']), 'green')
     else:
       response['file_path'] = ''
       print colored('Failed to download file {}'.format(
@@ -71,11 +73,12 @@ def download_file(basic_request_id, download_path=None):
         
       link = response['file_link']
       if link:
-        zip_file = urllib.URLopener()
-        zip_file.retrieve(link, file_path)
-        response['file_path'] = file_path
-        print colored('Successfully downloaded file {}'.format(
-            file_path), 'green')
+        if not dry_run:
+          zip_file = urllib.URLopener()
+          zip_file.retrieve(link, file_path)
+          response['file_path'] = file_path
+          print colored('Successfully downloaded file {}'.format(
+              file_path), 'green')
       else:
         response['file_path'] = ''
         print colored('Failed to download file {}'.format(file_path), 'red')
@@ -85,13 +88,14 @@ def download_file(basic_request_id, download_path=None):
       responses.append(response)
   return responses
 
-def download(request_id, point_request_index=0, basic_request_index=0, download_path=None):
+def download(request_id, point_request_index=0, basic_request_index=0, download_path=None, dry_run=False):
   """Downloads file associated with a given request, index through point and basic requests.
 
   Args:
       request_id: ID of the request.
       point_request_index: index of the point request 0..N-1.
       basic_request_index: index of basic request 0..M-1.
+      dry_run: True - let's you get the file link in the json and does not download file
   Returns:
       JSON object with metadata of files downloaded on disk.
   """
@@ -119,10 +123,10 @@ def download(request_id, point_request_index=0, basic_request_index=0, download_
     return
   
   response = download_file(response_basic_request['_items'][basic_request_index]['id'],
-                              download_path)
+                              download_path, dry_run)
   return response
 
-def download_all(request_id, download_path=None):
+def download_all(request_id, download_path=None, dry_run=False):
   """Downloads all files associated with a given request.
 
   Args:
@@ -152,7 +156,7 @@ def download_all(request_id, download_path=None):
         """Have to set download path, otherwise files will be overwritten """
         pass
         
-      r = download_file(response_basic['id'], download_path=None)
+      r = download_file(response_basic['id'], download_path=None, dry_run=dry_run)
       responses.append(r)
       
   return responses
@@ -309,6 +313,7 @@ def add_point_request(request_id):
   user = user['_items'][0]
   payload = {
     'requester_id': user['id'],
+    'scan_request_id': request_id,
     }
   print colored(payload, 'yellow')
   url = '{}/'.format(recastapi.ENDPOINTS['POINT_REQUESTS'])
