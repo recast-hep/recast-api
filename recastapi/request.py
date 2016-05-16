@@ -4,7 +4,7 @@ import uuid
 from termcolor import colored
 import urllib
 import yaml
-
+import json
 
 def request(uuid = None, maxpage = 100000):
     """Lists all requests.
@@ -17,6 +17,93 @@ def request(uuid = None, maxpage = 100000):
     url = '{}{}'.format(recastapi.ENDPOINTS['REQUESTS'], single_analysis)
     return recastapi.get(url)
 
+def parameter(request_id,
+              parameter_index=None):
+    '''Returns list of parameters or single parameter
+    Args:
+        request_id: the request ID to query
+        parameter_index: starting from 0
+    '''
+    
+    parameters_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'],
+        request_id
+    )
+    parameter_responses = recastapi.get(parameters_url)
+
+    if not parameter_index and not parameter_index == 0:
+        for i, parameter in enumerate(parameter_responses['_items']):
+            parameter['coordinates'] = get_coordinate(parameter['id'])
+            parameter['file'] = download(request_id=request_id,
+                                         point_request_index=i,
+                                         basic_request_index=0,
+                                         download_path=None,
+                                         dry_run=True
+                                     )                               
+        return parameter_responses['_items']
+    
+    if parameter_index >= 0 and parameter_index < len(parameter_responses['_items']):
+        # if the parameter index is defined
+        parameter_responses['_items'][parameter_index]\
+            ['coordinates'] = get_coordinate(
+                parameter_responses['_items'][parameter_index]['id'])
+
+        parameter_responses['_items'][parameter_index]\
+            ['file'] = download(
+                request_id = request_id,
+                point_request_index = parameter_index,
+                basic_request_index = 0,
+                dry_run=True
+            )
+        
+        return parameter_responses['_items'][parameter_index]
+    else:
+        #parameter index not found
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ****** Pameter index not found"
+        print '\n'
+        raise RuntimeError
+        
+
+def coordinate(request_id, parameter_index=0, coordinate_index=None):
+    '''Returns list of coordinates given a parameter index and request_id \
+              or single coordinate
+    if
+    '''
+    if not parameter_index and not parameter_index ==0:
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ****** Parameter index not valid"
+        print '\n'
+        raise RuntimeError
+
+    response = parameter(request_id = request_id,
+                         parameter_index = parameter_index,
+                     )    
+
+    if not coordinate_index and not coordinate_index == 0:
+        return response['coordinates']
+        
+    if coordinate_index < len(response['coordinates'])  and coordinate_index >= 0:
+        return response['coordinates'][coordinate_index]
+    else:
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******* Coordinate index not found"
+        print '\n'
+        raise RuntimeError
+
+def get_coordinate(point_request_id):
+    coordinate_url = '{}?where=point_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['PARAMETER_POINTS'],
+        point_request_id
+    )
+    
+    coordinate_responses = recastapi.get(coordinate_url)
+    return coordinate_responses['_items']
+    
+              
 def user_request(username):
     pass
 
@@ -280,7 +367,7 @@ def add_parameter(request_id,
 def add_coordinate(parameter_id,
                    coordinate_name,
                    coordinate_value):
-    '''Adds parameter.
+    '''Adds coordinate given parameter id.
         
     Args: 
         parameter_id: analogous to point_request_id.
