@@ -4,7 +4,7 @@ import uuid
 from termcolor import colored
 import urllib
 import yaml
-
+import json
 
 def request(uuid = None, maxpage = 100000):
     """Lists all requests.
@@ -17,6 +17,93 @@ def request(uuid = None, maxpage = 100000):
     url = '{}{}'.format(recastapi.ENDPOINTS['REQUESTS'], single_analysis)
     return recastapi.get(url)
 
+def parameter(request_id,
+              parameter_index=None):
+    '''Returns list of parameters or single parameter
+    Args:
+        request_id: the request ID to query
+        parameter_index: starting from 0
+    '''
+    
+    parameters_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'],
+        request_id
+    )
+    parameter_responses = recastapi.get(parameters_url)
+
+    if not parameter_index and not parameter_index == 0:
+        for i, parameter in enumerate(parameter_responses['_items']):
+            parameter['coordinates'] = get_coordinate(parameter['id'])
+            parameter['file'] = download(request_id=request_id,
+                                         point_request_index=i,
+                                         basic_request_index=0,
+                                         download_path=None,
+                                         dry_run=True
+                                     )                               
+        return parameter_responses['_items']
+    
+    if parameter_index >= 0 and parameter_index < len(parameter_responses['_items']):
+        # if the parameter index is defined
+        parameter_responses['_items'][parameter_index]\
+            ['coordinates'] = get_coordinate(
+                parameter_responses['_items'][parameter_index]['id'])
+
+        parameter_responses['_items'][parameter_index]\
+            ['file'] = download(
+                request_id = request_id,
+                point_request_index = parameter_index,
+                basic_request_index = 0,
+                dry_run=True
+            )
+        
+        return parameter_responses['_items'][parameter_index]
+    else:
+        #parameter index not found
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ****** Pameter index not found"
+        print '\n'
+        raise RuntimeError
+        
+
+def coordinate(request_id, parameter_index=0, coordinate_index=None):
+    '''Returns list of coordinates given a parameter index and request_id \
+              or single coordinate
+    if
+    '''
+    if not parameter_index and not parameter_index ==0:
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ****** Parameter index not valid"
+        print '\n'
+        raise RuntimeError
+
+    response = parameter(request_id = request_id,
+                         parameter_index = parameter_index,
+                     )    
+
+    if not coordinate_index and not coordinate_index == 0:
+        return response['coordinates']
+        
+    if coordinate_index < len(response['coordinates'])  and coordinate_index >= 0:
+        return response['coordinates'][coordinate_index]
+    else:
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******* Coordinate index not found"
+        print '\n'
+        raise RuntimeError
+
+def get_coordinate(point_request_id):
+    coordinate_url = '{}?where=point_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['PARAMETER_POINTS'],
+        point_request_id
+    )
+    
+    coordinate_responses = recastapi.get(coordinate_url)
+    return coordinate_responses['_items']
+    
+              
 def user_request(username):
     pass
 
@@ -235,64 +322,104 @@ def create(analysis_id,
     request_response = recastapi.post(url, data=payload)
     
     if file_path and parameter_value:
-        parameter_point_response = add_parameter_point(request_response['id'],
-                                                       parameter_value,
-                                                       parameter_title,
-                                                       file_path)
-        request_response['parameter_point'] = parameter_point_response
+        parameter_response = add_parameter(request_response['id'],
+                                                 parameter_value,
+                                                 parameter_title,
+                                                 file_path)
+        request_response['parameter'] = parameter_response
 
     return request_response
         
-def add_parameter_point(request_id, parameter_value, parameter_title=None, filename=None):
+def add_parameter(request_id,
+                  coordinate_value,
+                  coordinate_title=None,
+                  filename=None):
     """Add a parameter point to a request.
 
     Usually called automatically after create analysis
     Args:
         request_id: ID of the request to be associated to this parameter point.
-        parameter_value: Value of the scan parameter.
-        parameter_title: Optional title of the scan parameter.
+        coordinate_value: Value of the scan coordinate.
+        parameter_title: Optional title of the scan title.
         filename: Optional file path to file to associate to this parameter point.
       
     Returns:
        JSON object with data added
     
     """
-    point_request = add_point_request(request_id)
-    basic_request = add_basic_request(point_request['id'])
-    parameter_value = (parameter_value)
-    
-    parameter_payload = {
-        'point_request_id': point_request['id'],
-        'value': float(parameter_value),
-        'title': parameter_title
-    }
+    parameter_response = add_point_request(request_id)
 
-    parameter_url = '{}/'.format(recastapi.ENDPOINTS['PARAMETER_POINTS'])
-    parameter_response = recastapi.post(parameter_url, json=parameter_payload)
-    parameter_response['basic_request'] = basic_request
-    parameter_response['point_request'] = point_request
+    
+    coordinate_response = add_coordinate(parameter_response['id'],
+                                         coordinate_title,
+                                         coordinate_value)
+
+                                         
+    parameter_response['coordinate'] = coordinate_response
+    
 
     if filename:
-        print colored(basic_request, 'red')
-        file_response = upload_file(request_id, basic_request['id'], filename)
+        file_response = upload_file(parameter_response['id'], filename)
         parameter_response['file'] = file_response
 
     return parameter_response
 
-def upload_file(request_id, basic_request_id, filename):
+def add_coordinate(parameter_id,
+                   coordinate_name,
+                   coordinate_value):
+    '''Adds coordinate given parameter id.
+        
+    Args: 
+        parameter_id: analogous to point_request_id.
+        coordinate_value: value of the coordinate.
+        coordinate_name: name of the coordinate.
+    Returns:
+        JSON object with added data
+    '''
+    coordinate_payload = {
+        'point_request_id': parameter_id,
+        'title': coordinate_name,
+        'value': float(coordinate_value)        
+    }
+    
+    coordinate_url = '{}/'.format(recastapi.ENDPOINTS['PARAMETER_POINTS'])
+    coordinate_response = recastapi.post(coordinate_url,
+                                         json=coordinate_payload)
+    return coordinate_response
+
+
+def upload_file(parameter_id, filename):
     """Uploads zip file and associates it with a request and basic request.
   
     Args:
         request_id: ID of the request to be associated to this file.
-        basic_request_id: ID of the basic request to be associated.
+        basic_request_id: ID of the basic request to be asso
         filename: Path to file to be uploaded.
       
     Returns:
         JSON object
     
     """
+    basic_request = add_basic_request(parameter_id)
+    basic_request_id = basic_request['id']
+    
     file_uuid = str(uuid.uuid1())
-    request_data = request(request_id)
+
+    #get request ID, so deposition can be retrieved
+    point_request_url = '{}/{}'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'],
+        parameter_id)
+    point_response = recastapi.get(point_request_url)
+
+    request_id = point_response['scan_request_id']
+    
+    request_url = '{}/{}'.format(
+        recastapi.ENDPOINTS['REQUESTS'],
+        request_id
+    )
+    request_response = recastapi.get(request_url)
+    deposition_id = request_response['zenodo_deposition_id']
+
     payload = {
         'file_name': file_uuid,
         'zenodo_file_id': None,
@@ -302,9 +429,14 @@ def upload_file(request_id, basic_request_id, filename):
   
     files = {'file': open(filename, 'rb')}
     url = '{}/'.format(recastapi.ENDPOINTS['FILES'])
-    file_response = recastapi.post(url, data=payload, files=files,
-                                   params = {'deposition_id': request_data['zenodo_deposition_id']})
-    return file_response
+    file_response = recastapi.post(
+        url, 
+        data=payload, 
+        files=files,
+        params = {'deposition_id': deposition_id}
+    )
+    basic_request['metadata'] = file_response
+    return basic_request
   
 def add_point_request(request_id):
     """Adds point request

@@ -19,11 +19,10 @@ def create(name, email, orcid_id=None):
         'email':email,
         'orcid_id':orcid_id,
         }
-    postbody = '&'.join(['='.join(x) for x in payload.iteritems()])
     url = '{}/'.format(recastapi.ENDPOINTS['USERS'])
     return recastapi.post(url, payload)
 
-def user(id = None):
+def user(user_id = None):
     """Lists user information.
     
     Args:
@@ -32,9 +31,8 @@ def user(id = None):
         JSON object containing all data that could be retrieved.
     
     """
-    single_user = '/{}'.format(id) if id else ''
+    single_user = '/{}'.format(user_id) if user_id else ''
     url = '{}{}'.format(recastapi.ENDPOINTS['USERS'], single_user)
-    r = httprequest.get(url)
     return recastapi.get(url)
 
 def userData():
