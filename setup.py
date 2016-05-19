@@ -14,7 +14,7 @@ setup(
    'boto3',
    'termcolor',
    'pyopenssl',
-   'ndg-httpslclient',
+   'ndg-httpsclient',
    'pyasn1',
    ]
 )
