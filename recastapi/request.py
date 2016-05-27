@@ -5,6 +5,7 @@ from termcolor import colored
 import urllib
 import yaml
 import json
+import os
 
 def request(uuid = None, maxpage = 100000):
     """Lists all requests.
@@ -117,6 +118,7 @@ def download_file(basic_request_id, download_path=None, dry_run=False):
     Returns:
       JSON object containing the metadata of the file, and file downloaded saved on disk.
     """
+    local_path_key_name = 'local_path' #path of the downloaded file on local machine
     files_urls = '{}?where=basic_request_id=="{}"'.format(
         recastapi.ENDPOINTS['FILES'], basic_request_id)
   
@@ -131,14 +133,14 @@ def download_file(basic_request_id, download_path=None, dry_run=False):
             if not dry_run:
                 zip_file = urllib.URLopener()
                 zip_file.retrieve(link, download_path or response['original_file_name'])
-                response['file_path'] = download_path or response['original_file_name']
+                response['local_path_key_name'] = download_path or response['original_file_name']
                 print colored('Successfully downloaded file {}'.format(
                     download_path or response['original_file_name']), 'green')
             else:
                 print colored('File link: {}'.format(
                     response['file_link']), 'green')
         else:
-            response['file_path'] = ''
+            response[local_path_key_name] = None
             print colored('Failed to download file {}'.format(
                 download_path or response['original_file_name']), 'red')
             print colored('\t Please check if this request is associted with a file', 'red')
@@ -159,11 +161,11 @@ def download_file(basic_request_id, download_path=None, dry_run=False):
                 if not dry_run:
                     zip_file = urllib.URLopener()
                     zip_file.retrieve(link, file_path)
-                    response['file_path'] = file_path
+                    response[local_path_key_name] = file_path
                     print colored('Successfully downloaded file {}'.format(
                         file_path), 'green')
             else:
-                response['file_path'] = ''
+                response[local_path_key_name] = None
                 print colored('Failed to download file {}'.format(file_path), 'red')
                 print colored('\t Please check if this request is associated with a file', 'red')
                 
@@ -400,6 +402,11 @@ def upload_file(parameter_id, filename):
         JSON object
     
     """
+    if not os.path.isfile(filename):
+        #raise IOException('File does not exist: {}'.format(filename))
+        print "File does not exit"
+        raise RuntimeError
+
     basic_request = add_basic_request(parameter_id)
     basic_request_id = basic_request['id']
     

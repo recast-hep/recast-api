@@ -14,4 +14,3 @@ print colored(yaml.safe_dump(response,
               'green')
 
 response2 = recastapi.request.request_tree(request_id)
-    
