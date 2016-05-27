@@ -118,7 +118,7 @@ def download_file(basic_request_id, download_path=None, dry_run=False):
     Returns:
       JSON object containing the metadata of the file, and file downloaded saved on disk.
     """
-	local_path_key_name = 'local_path' #path of the downloaded file on local machine
+    local_path_key_name = 'local_path' #path of the downloaded file on local machine
     files_urls = '{}?where=basic_request_id=="{}"'.format(
         recastapi.ENDPOINTS['FILES'], basic_request_id)
   
@@ -402,8 +402,10 @@ def upload_file(parameter_id, filename):
         JSON object
     
     """
-	if not os.path.isfile(filename):
-		raise IOException('File does not exist: {}'.format(filename))
+    if not os.path.isfile(filename):
+        #raise IOException('File does not exist: {}'.format(filename))
+        print "File does not exit"
+        raise RuntimeError
 
     basic_request = add_basic_request(parameter_id)
     basic_request_id = basic_request['id']
@@ -454,7 +456,7 @@ def add_point_request(request_id):
     """
     user = recastapi.user.userData()
     user = user['_items'][0]
-    paxyload = {
+    payload = {
         "scan_request_id": request_id,
         "requester_id": user['id'],
     }
