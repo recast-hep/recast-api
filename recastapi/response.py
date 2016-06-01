@@ -84,7 +84,7 @@ def add_basic_response(yaml_file, point_response_id, basic_request_id, filename)
 	    'observed_CLs': float(data_map['observed_CLs']),
             'log_likelihood_at_reference': float(data_map['log_likelihood_at_reference']),
 	    'point_response_id': int(point_response_id),
-            'basic_request_id': int(point_response_id)
+            'basic_request_id': int(basic_request_id)
 	}
     except Exception, e:
 	print "*"*60
