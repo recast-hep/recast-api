@@ -1,0 +1,34 @@
+- coordinates:
+  - name: a
+    value: 1
+  - name: b
+    value: 1
+  basicrequests:
+  - samples/file11.zip
+    
+- coordinates:
+  - name: a
+    value: 1
+  - name: b
+    value: 2
+  basicrequests:
+    - samples/file12.zip
+
+- coordinates:
+  - name: a
+    value: 2
+  - name: b
+    value: 1
+  basicrequests:
+    - samples/file21.zip
+
+- coordinates:
+  - name: a
+    value: 2
+  - name: b
+    value: 2
+  basicrequests:
+    - samples/file22.zip
+    
+
+

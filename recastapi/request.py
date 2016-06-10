@@ -333,7 +333,7 @@ def create(analysis_id,
     return request_response
         
 def add_parameter(request_id,
-                  coordinate_value,
+                  coordinate_value=None,
                   coordinate_title=None,
                   filename=None):
     """Add a parameter point to a request.
@@ -351,13 +351,13 @@ def add_parameter(request_id,
     """
     parameter_response = add_point_request(request_id)
 
-    
-    coordinate_response = add_coordinate(parameter_response['id'],
-                                         coordinate_title,
-                                         coordinate_value)
+    if coordinate_value:
+        coordinate_response = add_coordinate(parameter_response['id'],
+                                             coordinate_title,
+                                             coordinate_value)
 
                                          
-    parameter_response['coordinate'] = coordinate_response
+        parameter_response['coordinate'] = coordinate_response
     
 
     if filename:
