@@ -20,7 +20,6 @@ print yaml.dump(param_data, default_style=False)
 recastapi.ORCID_ID = os.environ.get('RECASTAPI_ORCID_ID', '')
 recastapi.ACCESS_TOKEN = os.environ.get('RECASTAPI_ACCESS_TOKEN', '')
 
-request_id = 2
 response = []
 
 for parameter in param_data:
