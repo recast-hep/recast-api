@@ -4,8 +4,6 @@ import uuid
 from termcolor import colored
 import urllib
 import yaml
-import json
-import os
 
 def request(uuid = None, maxpage = 100000):
     """Lists all requests.
@@ -349,7 +347,10 @@ def add_parameter(request_id,
        JSON object with data added
     
     """
-    parameter_response = add_point_request(request_id)
+    if filename:
+        recastapi.file_check(filename)
+        
+    parameter_response = add_point_request(request_id)    
 
     if coordinate_value:
         coordinate_response = add_coordinate(parameter_response['id'],
@@ -365,6 +366,7 @@ def add_parameter(request_id,
         parameter_response['file'] = file_response
 
     return parameter_response
+
 
 def add_coordinate(parameter_id,
                    coordinate_name,
@@ -402,11 +404,8 @@ def upload_file(parameter_id, filename):
         JSON object
     
     """
-    if not os.path.isfile(filename):
-        #raise IOException('File does not exist: {}'.format(filename))
-        print "File does not exit"
-        raise RuntimeError
-
+    recastapi.file_check(filename)
+    
     basic_request = add_basic_request(parameter_id)
     basic_request_id = basic_request['id']
     
@@ -492,3 +491,58 @@ def update_status(request_id, status):
        JSON object
     """
     pass
+
+
+def add_coordinate_by_index(request_id,
+                            parameter_index,
+                            coordinate_name,
+                            coordinate_value):
+    """Adds coordinate to a give parameter 
+    Args:
+        request_id: request ID
+        parameter_index: value of the coordinate
+        coordinate_name: name of the coordinate
+        coordinate_value: value
+    Returns: 
+        JSON
+    """
+               
+    #get the parameter id
+    parameter_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+    parameters = recastapi.get(parameter_url)
+
+    if parameter_index > len(parameters['_items'])-1:
+        print "*"*60
+        print "Parameter index out of bounds"
+        print "The request has ", len(parameters['_items']), " parameters"
+        raise RuntimeError
+
+    parameter_id = parameter_index['_items'][parameter_index]['id']    
+
+    return add_coordinate(parameter_id=parameter_id,
+                          coordinate_name=coordinate_name,
+                          coordinate_value=coordinate_value)
+                   
+
+def upload_file_by_index(request_id, parameter_index, filename):
+    """ Uploads zip file given the parameter index
+
+    """
+    recastapi.file_check(filename)
+
+    #get parameter id
+    parameter_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+    parameters = recastapi.get(parameter_url)
+
+    if parameter_index > len(parameters['_items'])-1:
+        print "*"*60
+        print "Parameter index out of bounds"
+        print "The request has ", len(parameters['_items']), " parameters"
+        raise RuntimeError
+
+    parameter_id = parameter_index['_items'][parameter_index]['id']
+
+    return upload_file(parameter_id=parameter_id,
+                       filename=filename)

@@ -20,3 +20,5 @@ ENDPOINTS = {
 
 ORCID_ID = ''
 ACCESS_TOKEN = ''
+
+allowed_extension = '.zip'
