@@ -1,6 +1,6 @@
 import os
 import recastapi
-import recastapi.request
+import recastapi.request.post
 import yaml
 
 """ Example script to upload several parameter points from a file 
@@ -8,7 +8,7 @@ import yaml
     can return a response variable
 """
 
-request_id = 0
+request_id = 5
 
 
 f = open('samples/param_data.yaml')
@@ -26,7 +26,7 @@ for parameter in param_data:
 
     # create a point request/parameter (parent)
     print "Adding parameter for: {}".format(parameter['coordinates'])
-    point_response = recastapi.request.add_parameter(request_id=request_id)
+    point_response = recastapi.request.post.parameter(request_id=request_id)
     parameter_id = point_response['id']
     
     response.append(point_response)
@@ -34,7 +34,8 @@ for parameter in param_data:
 
     for coordinate in parameter['coordinates']:
         print "\t Adding coordinates: {}".format(coordinate)
-        coordinate_response = recastapi.request.add_coordinate(
+        
+        coordinate_response = recastapi.request.post.coordinate(
             parameter_id=parameter_id,
             coordinate_name=coordinate['name'],
             coordinate_value=float(coordinate['value'])
@@ -46,7 +47,7 @@ for parameter in param_data:
     response[-1]['files'] = []
     for basic in parameter['basicrequests']:
         print "\t Uploading file: {}".format(basic)
-        file_response = recastapi.request.upload_file(parameter_id=parameter_id,
+        file_response = recastapi.request.post.upload_file(parameter_id=parameter_id,
                                                       filename=basic)
         response[-1]['files'].append(file_response)
 

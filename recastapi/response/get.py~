@@ -1,0 +1,55 @@
+import recastapi
+from termcolor import colored
+import urllib
+import yaml
+import uuid
+
+
+def response(uuid=None,
+             request_id=None,
+             query='?max_results=1000&page=1'):
+    """ List response depending on criteria.
+        If all args are None alll responses returned.
+    Args:
+        uuid: Response ID to query(optional). Returns a single request with the ID
+        request_id: Request ID of request to query(optional). Returns request
+                     associated to response
+    Returns:
+          JSON object       
+    """
+    
+    if uuid and request_id:
+        print "*"*60
+        print "Cannot fetch request and uuid simultaneously"
+        print "Please provide either a request ID or uuid"
+        raise RuntimeError
+
+    elif uuid:
+         single_response = '/{}'.format(uuid)
+         url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSES'], single_response)
+         response = recastapi.get(url)
+         return response
+
+    elif request_id:
+        request_str = '?where=scan_request_id=="{}"'.format(request_id)
+        url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSES'], request_str)
+        print url
+        response = recastapi.get(url)
+        if len(response) == 0:
+            return None
+        else:
+            return response['_items'][0]
+
+    else:
+        url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSES'], query)
+        response = recastapi.get(url)
+        return response
+         
+    
+def user_response(username):
+    """Lists all responses associated to a user.      
+    """       
+    #r = httprequest.get('{}/responses.json?pagesize=100000&username={}'.format(BASEURL,username))
+    #responses = json.loads(r.content)
+    #return responses
+    pass
