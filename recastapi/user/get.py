@@ -3,11 +3,10 @@ import recastapi
 def user(user_id = None):
     """Lists user information.
     
-    Args:
-        id: Optional, if provided will return data of a single user.
-    Returns:
-        JSON object containing all data that could be retrieved.
-    
+
+    :param id: Optional, if provided will return data of a single user.
+
+    :return: JSON object containing all data that could be retrieved.    
     """
     single_user = '/{}'.format(user_id) if user_id else ''
     url = '{}{}'.format(recastapi.ENDPOINTS['USERS'], single_user)
@@ -16,10 +15,7 @@ def user(user_id = None):
 def user_data():
     """Lists user given his ORCID ID
     
-    Args:
-        None
-    Returns:
-        JSON object
+    :return: JSON object
     """
     if not recastapi.ORCID_ID:
         print '-'*60

@@ -7,6 +7,9 @@ import yaml
 def response(request_id, model_id=None):
     """create response.
     
+    :param request_id: ID of the request
+
+    :return: JSON object
     """
     payload = {
         'scan_request_id': request_id,
@@ -17,6 +20,15 @@ def response(request_id, model_id=None):
     return recastapi.post(url, json=payload)
 	
 def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
+    """ adds and associates parameter to response and request
+
+    :param yaml_file: file containing parameter response data
+    :param scan_response_id: ID of the response
+    :param point_request_id: ID of the point request
+    :param filename: filename associtated to the parameter. Must be *.zip
+
+    :return: JSON object
+    """
 
     recastapi.file_check(filename)
     
@@ -52,7 +64,16 @@ def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
     return response
 	
 def basic_response(yaml_file, point_response_id, basic_request_id, filename):
+    """" Adds and associtate basic response to parameter response
+    
+    :param yaml_file: file containing data of the basic response
+    :param point_response_id: parameter response ID
+    :param basic_request_id: index of the basic request
+    :param filename: file associated to basic response
 
+    :return: JSON object
+    """
+    
     recastapi.file_check(filename)
     
     f = open(yaml_file)
@@ -90,8 +111,14 @@ def upload_file(filename,
 		basic_response_id=None):
     """Uploads response file 
     
-    Double check how the filename of response will be provided
-    i.e. common name or uuid?
+    Either the basic response or parameter response has to be provided
+
+
+    :param filename: file to be uploaded
+    :param point_response_id: ID of the parameter response
+    :param basic_response_id: ID of the basic response
+
+    :return: JSON object
     """
     recastapi.file_check(filename)
 
@@ -131,10 +158,13 @@ def upload_file(filename,
 def parameter_response_by_index(yaml_file, request_id, parameter_index, filename):
     """Adds Point response/Parameter response given the request id and parameter index
         index with reference from 0
-    Args: 
-        yaml_file: file containing the data of the response
-        request_id: request id
-        parameter_index: index of the parameter
+
+    :param yaml_file: file containing the data of the response
+    :param request_id: request id
+    :param parameter_index: index of the parameter
+    :param filename: filename associated to the parameter
+
+    :return: JSON object
     """
     recastapi.file_check(filename)
 
@@ -175,13 +205,14 @@ def basic_response_by_index(yaml_file,
                             basic_index,
                             filename):
     """ Add basic response given the request id, parameter index, and basic index
-    Args:
-        yaml_file: file containing basic response data
-        request_id: associate request id
-        parameter_index: index of the parameter
-        basic_index: index of the basic response
-    Returns:
-        JSON object
+
+    :param yaml_file: file containing basic response data
+    :param request_id: associate request id
+    :param parameter_index: index of the parameter
+    :param basic_index: index of the basic response
+    :param filename: file associated to the basic response
+
+    :return: JSON object
     """
     recastapi.file_check(filename)
     

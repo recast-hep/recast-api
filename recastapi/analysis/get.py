@@ -2,12 +2,10 @@ import recastapi
 
 def analysis(uuid = None):  
     """List analysis given uuid or all analyses.
+        
+    :param uuid: analysis_id.
     
-    Args:
-    uuid: analysis_id.
-    
-    Returns:
-    JSON object containing all analyses retrieved.
+    :return: JSON object containing all analyses retrieved.
     """
     
     single_analysis = '/{}'.format(uuid) if uuid else ''

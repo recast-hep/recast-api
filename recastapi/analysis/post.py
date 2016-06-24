@@ -11,19 +11,17 @@ def analysis(title,
              run_condition_description):
     """Create a new analysis and Run Condition.
   
-    Args:
-      title: Title of the analysis.
-      collaboration: Choice among: ALICE, ATLAS, CMS, .
-      e_print: link.
-      journal: Name of journal.
-      doi: Arxiv doi?
-      inspire_url: URL on inspire website.
-      description: A detailed description of the analysis.
-      run_condition_name: Name of the run condition.
-      run_condition_descprition: Detailed description of the run condition.
+    :param title: Title of the analysis.
+    :param collaboration: Choice among: ALICE, ATLAS, CMS, .
+    :param e_print: link.
+    :param journal: Name of journal.
+    :param doi: Arxiv doi?
+    :param inspire_url: URL on inspire website.
+    :param description: A detailed description of the analysis.
+    :param run_condition_name: Name of the run condition.
+    :param run_condition_descprition: Detailed description of the run condition.
 
-      Returns:
-    JSON object containing data that has been added into DB.
+    :return: JSON object containing data that has been added into DB.
     """
     r_condition_payload = {
         'name': run_condition_name,

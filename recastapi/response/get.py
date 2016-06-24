@@ -7,12 +7,13 @@ def response(uuid=None,
              query='?max_results=1000&page=1'):
     """ List response depending on criteria.
         If all args are None alll responses returned.
-    Args:
-        uuid: Response ID to query(optional). Returns a single request with the ID
-        request_id: Request ID of request to query(optional). Returns request
+
+    :param uuid: Response ID to query(optional). Returns a single request with the ID
+    :param request_id: Request ID of request to query(optional). Returns request
                      associated to response
-    Returns:
-          JSON object       
+    :param query: additional query 
+
+    :return: JSON object       
     """
     
     if uuid and request_id:
@@ -54,6 +55,12 @@ def user_response(username):
 
 def download_file(basic_response_id, download_path=None, dry_run=False):
     """Downloads response file to user specified path.
+    
+    :param basic_response_id: ID of the basic response
+    :param download_path: Used specified filename
+    :param dry_run: whether to download file or not
+
+    :return: JSON object
     
     """
     local_path_key_name = 'local_path' #path of the downloaded file on local machine
@@ -117,12 +124,14 @@ def download(response_id,
 	     dry_run=False):
     """Downloads file associated with a given request, indexed through point and basic responses.
     
-    Args:
-    response_id: ID of the response.
-    point_response_index: index of the point request 0..N-1.
-    basic_response_index: index of the basic request 0..M-1.
-    Returns:
-    JSON object with metadata of files downloaded on disk.
+
+    :param response_id: ID of the response.
+    :param point_response_index: index of the point request 0..N-1.
+    :param basic_response_index: index of the basic request 0..M-1.
+    :param download_path: User specified download filename `if` none keeps original name
+    :param dry_run: whether to download file or not
+    
+    :return: JSON object with metadata of files downloaded on disk.
     """
   
     print colored('Download...', 'cyan')
@@ -153,11 +162,10 @@ def download(response_id,
 							  download_path, dry_run)
     return response
 
-def response_tree(response_id):
+def tree(response_id):
     """Prints response tree, nested with point and basic response.
     
-    Args:
-    response_id:
+    :param response_id: ID of the response
     """
     url_point_response = '{}?where=scan_response_id=="{}"'.format(
 	recastapi.ENDPOINTS['POINT_RESPONSES'], 

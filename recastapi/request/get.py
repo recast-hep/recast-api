@@ -9,11 +9,12 @@ def request(uuid=None,
             query='?max_results=1000&page=1'):    
     """List request depending on criteria
        If all variables are none all requests returned
-    Args:
-        uuid: ID of the request(optional)
-        analysis_id: Analysis ID to query. Returns all requests associated to the analysis        
-    Returns:
-       JSON object
+
+    
+    :param uuid: ID of the request(optional)
+    :param analysis_id: Analysis ID to query. Returns all requests associated to the analysis        
+
+    :return: JSON object
     """
     if analysis_id and uuid:
         print "*"*60
@@ -50,11 +51,11 @@ def query(query=None):
 
 def parameter(request_id,
               parameter_index=None):
-    '''Returns list of parameters or single parameter
-    Args:
-        request_id: the request ID to query
-        parameter_index: starting from 0
-    '''
+    """Returns list of parameters or single parameter
+
+    :param request_id: the request ID to query
+    :param parameter_index: starting from 0
+    """
     
     parameters_url = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'],
@@ -94,10 +95,16 @@ def parameter(request_id,
         
 
 def coordinate(request_id, parameter_index=0, coordinate_index=None):
-    '''Returns list of coordinates given a parameter index and request_id \
+    """Returns list of coordinates given a parameter index and request_id \
               or single coordinate
-    if
-    '''
+
+
+    :param request_id: ID of the request
+    :param parameter_index: index of the parameter
+    :param coordinate_index: index of the coordinate.
+                            `if` none given returns list of coordinate
+    :return: JSON object
+    """
     if not parameter_index and not parameter_index ==0:
         print '-'*60
         print "Exception in user code:"
@@ -125,7 +132,12 @@ def coordinate(request_id, parameter_index=0, coordinate_index=None):
 def archives(request_id, parameter_index=0, basic_index=None):
     """ Returns list of files given the request id and parameter index
         
+    :param request_id: ID of the request
+    :param parameter_index: index of the parameter
+    :param basic_index: index of the basic request
 
+
+    :return: JSON object `or` list if basic_index is None
     """
     if not parameter_index and not parameter_index ==0:
         print '-'*60
@@ -181,6 +193,9 @@ def archives(request_id, parameter_index=0, basic_index=None):
             
 
 def get_coordinate(point_request_id):
+    """ Private function
+
+    """
     coordinate_url = '{}?where=point_request_id=="{}"'.format(
         recastapi.ENDPOINTS['PARAMETER_POINTS'],
         point_request_id
@@ -196,12 +211,15 @@ def user_request(username):
 def download_file(basic_request_id, download_path=None, dry_run=False):  
     """ Worker function that actually downloads file
     
-    Args: 
-      basic_request_id: ID of the basic request associated with a file.
-      donwload_path: User specified download path(optional), if not
+    
+    :param basic_request_id: ID of the basic request associated with a file.
+    :param donwload_path: User specified download path(optional), if not
                    provided, file takes original file_name.
-    Returns:
-      JSON object containing the metadata of the file, and file downloaded saved on disk.
+    :param dry_run: whether to download file or not. If false link of file provided
+                    in response object
+
+    
+    :return: JSON object containing the metadata of the file, and file downloaded saved on disk.
     """
     local_path_key_name = 'local_path' #path of the downloaded file on local machine
     files_urls = '{}?where=basic_request_id=="{}"'.format(
@@ -249,13 +267,14 @@ def download(request_id,
              dry_run=False):
     """Downloads file associated with a given request, index through point and basic requests.
     
-    Args:
-        request_id: ID of the request.
-        point_request_index: index of the point request 0..N-1.
-        basic_request_index: index of basic request 0..M-1.
-        dry_run: True - let's you get the file link in the json and does not download file
-    Returns:
-       JSON object with metadata of files downloaded on disk.
+
+    :param request_id: ID of the request.
+    :param point_request_index: index of the point request 0..N-1.
+    :param basic_request_index: index of basic request 0..M-1.
+    :param dry_run: whether to download file or not
+
+    
+    :return: JSON object with metadata of files downloaded on disk.
     """
     print colored('Downloading....', 'cyan')
     print colored('Request: {}.\n\t Point request index: {}. \n\t\t Basic request index: {}.'
@@ -288,13 +307,14 @@ def download(request_id,
 def download_all(request_id, download_path=None, dry_run=False):
     """Downloads all files associated with a given request.
     
-    Args:
-        request_id: ID of the request to query.
-        download_path: Filename of the files(still have to come up with logical)
+
+    :param request_id: ID of the request to query.
+    :param download_path: Filename of the files(still have to come up with logical)
                   naming convention. Currently, files are downloaded with their original
                   file name in the current directory
-    Returns:
-        JSON object with metadata of files downloaded on disk
+    :param dry_run: whether to download file or not
+
+    :return: JSON object with metadata of files downloaded on disk
     """
     url_point_request = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
@@ -321,11 +341,11 @@ def download_all(request_id, download_path=None, dry_run=False):
     return responses
 
 def tree(request_id):
-    """ Prints request tree, including point request, basic_request
+    """ Prints request tree, including the number of 
+        coordinates for each parameter
     
-    Args:
-        request_id
     
+    :param request_id: ID of the request
     """
 
     print colored('Tree for REQUEST: {}'.format(request_id), 'green')
