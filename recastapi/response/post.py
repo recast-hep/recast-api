@@ -176,7 +176,7 @@ def parameter_response_by_index(yaml_file, request_id, parameter_index, filename
     if len(scan_responses['_items']) == 0:
         # make new scan response if none is associated to the request
         scan_responses = response(request_id)
-        #scan_response_id = scan_responses['id']
+        scan_response_id = scan_responses['id']
     else:
         scan_response_id = scan_responses['_items'][0]['id']
 

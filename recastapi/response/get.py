@@ -43,6 +43,102 @@ def response(uuid=None,
         response = recastapi.get(url)
         return response
          
+def parameter(request_id, parameter_index):
+    """ Gets the parameter response given an index
+    
+    :param request_id: ID of request
+    :param parameter_index: index of the parameter
+    
+    :return: JSON object
+    """
+
+    # get parameter ID
+    parameter_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+    parameter_response = recastapi.get(parameter_url)
+
+    if parameter_index > len(parameter_response['_items'])-1:
+        # index does not exist
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******* parameter index out of bounds"
+        print "\n"
+        raise RuntimeError
+
+    parameter_id = parameter_response['_items'][parameter_index]['id']
+
+    # check for parameter response
+
+    response_url = '{}?where=point_request_id="{}"'.format(
+        recastapi.ENDPOINTS['POINT_RESPONSES'], parameter_id)
+    response = recastapi.get(response_url)
+
+    if len(response['_items']) == 0:
+        # No parameter response found
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ****** No parameter response found"
+        print '\n'
+        raise RuntimeError
+    
+    return response['_items'][0]
+        
+
+    
+def basic(request_id, parameter_index, basic_index):
+    """ Gets the basic response
+
+    :param request_id: ID of the request
+    :param parameter_index: ID of the parameter
+    :param basic_index: ID of the basic response
+    
+    :return: JSON object
+    """
+
+    # get parameter ID
+    parameter_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
+    parameter_response = recastapi.get(parameter_url)
+
+    if parameter_index > len(parameter_response['_items'])-1:
+        # index out of bounds
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******** parameter index out of bounds"
+        print '\n'
+        raise RuntimeError
+
+    parameter_id = parameter_response['_items'][parameter_index]['id']
+
+    # get basic request
+    basic_url = '{}?where=point_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['BASIC_REQUESTS'], parameter_id)
+    basic_response = recastapi.get(basic_url)
+
+    if basic_index > len(basic_response['_items'])-1:
+        # basic index out of bounds
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******* basic index out of bounds"
+        print '\n'
+        raise RuntimeError
+
+    basic_id = basic_response['_items'][basic_index]['id']
+
+    # finally fetch the basic response
+    response_url = '{}?where=basic_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['BASIC_RESPONSES'], basic_id)
+    response = recastapi.get(response_url)
+
+    if len(response['_items']) == 0:
+        # No basic response found
+        print '-'*60
+        print "Exception in user code:"
+        print "\t ******** No basic response found for the indices"
+        print '\n'
+        raise RuntimeError
+
+    return response['_items'][0]
     
 def user_response(username):
     """Lists all responses associated to a user.      
