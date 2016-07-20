@@ -9,9 +9,15 @@ def create(analysis_id,
            authoritative=False):     
     """Creates a subscription.
     
-    Usage
+
+    :param analysis: ID of the analysis
+    :param subscription_type: provider or observer
+    :param description: description of subscription
+    :param requirements: requirements
+    :param notification: recast_requests or recast_responses or new subscribers
+    :param authoritative: True or False
     
-    
+    :return: JSON object
     """
     
     assert subscription_type in ['provider', 'observer']
@@ -38,6 +44,7 @@ def unsubscribe(subscription_id):
   
     TO-DO: check if the user is allowed to delete the subscription
     
+    :param subscription_id: ID of the subscription
     """
     url = '{}/{}'.format(recastapi.ENDPOINTS['SUBSCRIPTIONS'],
                         subscription_id)
@@ -47,7 +54,6 @@ def unsubscribe(subscription_id):
 def my_subscriptions():
     """Lists your subscriptions.
     
-    ORCID ID has to be provided
     """
     if not recastapi.ORCID_ID:
         print "Can't list your subscriptions."

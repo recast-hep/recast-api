@@ -1,7 +1,8 @@
-from settings import ORCID_ID, ACCESS_TOKEN, ENDPOINTS, BASEURL
+from settings import ORCID_ID, ACCESS_TOKEN, ENDPOINTS, BASEURL, allowed_extension
 import requests as httprequest
 import traceback, sys
 import json as json_obj
+import os
 
 def print_failure(response):
     print '-'*60
@@ -14,6 +15,14 @@ def print_failure(response):
     print "*** exception:"
     traceback.print_tb(exc_type, exc_value, exc_traceback)
     raise RuntimeError
+
+def file_check(filename):
+    if not os.path.isfile(filename):
+	raise IOException('File does not exit: {}'.format(filename))
+    
+    if not filename.endswith(allowed_extension):
+        print "File extension not allowed"
+        raise RuntimeError
 
 def post(url, data=None, params=None, files=None, json=None):
     response = httprequest.post(url, 
