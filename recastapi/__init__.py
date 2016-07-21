@@ -18,7 +18,7 @@ def print_failure(response):
 
 def file_check(filename):
     if not os.path.isfile(filename):
-	raise IOException('File does not exit: {}'.format(filename))
+	raise Exception('File does not exit: {}'.format(filename))
     
     if not filename.endswith(allowed_extension):
         print "File extension not allowed"
