@@ -59,18 +59,112 @@ class RecastApi(object):
         # data dict to file
         with open(filename, 'w') as f:
             json.dump(data, f)
+
+    def add_point(self, data, param_key=None):
+        """ adds point request and archive data from a JSON datastructure.
         
+        :param param_key: parameter key in the staged_point_request data structure
+        :param data: data to be added
+        e.g. input data structure
+        {
+            'coordinates': [
+                             {'name': 'a', 'coordinate:' 1},
+                             {'name': 'b', 'coordinate': 2}
+                           ],
+            'basic': [
+                       {'filename': 'samples/file11.zip'},
+                       {'filename': 'samples/file12.zip'}
+                     ]
+        }
+        :return param_key
+        """
+
+        if data is None:
+            # for testing purpose
+            data = {'coordinates': [{'name': 'a', 'coordinate': 1},
+                                    {'name': 'b', 'coordinate': 2}
+                                ],
+                    'basic': [{'filename': 'samples/file11.zip'},
+                              {'filename': 'samples/file12.zip'}]
+                }            
+        try: 
+            coordinates = data['coordinates']
+            basic_requests = data['basic']
+        except Exception, e:
+            print e
+            raise Exception('Error retrieving "coordinates" or "basic" keys')
+
+        if param_key is None:
+            n_keys = len(self.staged_point_request.keys())
+            param_key = self.make_parameter_key('param_{}'.format(n_keys))
+        elif self.staged_point_request.has_key(param_key):
+            raise Exception('Parameter key {} already exists!'.format(param_key))
+        
+        logging.info('Adding parameter for: {}'.format(coordinates))
+        point_response = recastapi.request.post.parameter(request_id=self.request_id)
+        parameter_id = point_response['id']
+        logging.debug('Added point request with ID: {}'.format(parameter_id))
+        staged_param = {}
+        staged_param[param_key] = {}
+        staged_param[param_key]['point_id'] = parameter_id
+        staged_param[param_key]['coordinates'] = coordinates
+        point_response['coordinates'] = []
+        
+        for coordinate in coordinates:
+            logging.info('\t Adding coordinates: {}'.format(coordinate))
+            coordinate_response = recastapi.request.post.coordinate(
+                parameter_id=parameter_id,
+                coordinate_name=coordinate['name'],
+                coordinate_value=float(coordinate['value'])
+                )                    
+            logging.debug('Added coordinate with ID: {}'.format(coordinate_response['id']))
+            point_response['coordinates'].append(coordinate_response)
+            
+        point_response['files'] = []
+        staged_param[param_key]['basic'] = {}
+        for i, basic in enumerate(basic_requests):
+            logging.info('\t Uploading file: {}'.format(basic['filename']))
+            file_response = recastapi.request.post.upload_file(parameter_id=parameter_id,
+                                                               filename=basic['filename'])
+            logging.info('\t Successfully uploaded file: {}'.format(basic['filename']))
+            point_response['files'].append(file_response)
+            logging.debug('BASIC REQUEST: j = {}'.format(i))
+            basic_key = 'basic_{}'.format(i)
+            staged_param[param_key]['basic'][basic_key] = {}
+            staged_param[param_key]['basic'][basic_key] = {
+                'basic_id': file_response['id'],
+                'data': data
+            }
+
+        self.staged_point_request[param_key] = {}
+        self.staged_point_request[param_key] = staged_param[param_key]
+        self.all_responses.append(point_response)
+        logging.debug('Added all files')
+        return param_key
+        
+
+    def make_parameter_key(self, tentative_key):
+        """ makes sure there are no duplicate keys.
+        
+        :param tentative_key: initial key.
+        """
+        if self.staged_point_request.has_key(tentative_key):            
+            return self.make_parameter_key('{}_{}'.format(tentative_key))
+        return tentative_key
+
     def add_point_from_file(self, param_file='samples/param_data.yaml'):
         """ Function to add point requests.
         
         added and saved into dict that can later be retrieved to use
         for adding.
+        :returns a list of parameter keys to refer to data added
         """
         f = open(param_file)
         param_data = yaml.load(f)
         f.close()
 
-        # loop through file and fill 
+        # loop through file and fill
+        keys = []
         response = []
         staged_param = {}
         for i, parameter in enumerate(param_data):
@@ -78,7 +172,9 @@ class RecastApi(object):
             point_response = recastapi.request.post.parameter(request_id=self.request_id)
             parameter_id = point_response['id']
             logging.debug('Added point request with ID: {}'.format(parameter_id))
-            param_key = 'param_{}'.format(i)
+            n_keys = len(self.staged_point_request_keys())
+            param_key = 'param_{}'.format(n_keys)
+            keys.append(param_key)
             staged_param[param_key] = {}
             staged_param[param_key]['point_id'] = parameter_id
             staged_param[param_key]['data'] = parameter['coordinates']
@@ -99,30 +195,26 @@ class RecastApi(object):
                 
             response[-1]['files'] = []
             staged_basic = {}
-            for j, basic in enumerate(parameter['basicrequests']):
-                
+            staged_param[param_key]['basic'] = {}
+            for j, basic in enumerate(parameter['basicrequests']):                
                 # add basic requests one by one
                 logging.info('\t Uploading file: {}'.format(basic))
                 file_response = recastapi.request.post.upload_file(parameter_id=parameter_id,
                                                                    filename=basic)
                 response[-1]['files'].append(file_response)
-                logging.debug('BASIC  REQUEST: i = {}'.format(j))
+                logging.debug('BASIC  REQUEST: j = {}'.format(j))
                 basic_key = 'basic_{}'.format(j)
-                staged_param[param_key]['basic'] = {}
                 staged_param[param_key]['basic'][basic_key] = {}
                 staged_param[param_key]['basic'][basic_key] = {
                     'basic_id': file_response['id'],
                     'data': basic}
                     
                 logging.debug('basic key: {}'.format(basic_key))
-                staged_basic[basic_key] = {}
-                staged_basic[basic_key]['basic_id'] = file_response['id']
-                staged_basic[basic_key]['data'] = basic
 
         self.staged_point_request = staged_param
-        self.staged_basic_request = staged_basic
         logging.debug('Added all files')
         self.all_responses.append(response)
+        return keys
 
     def add_point_response(self, key_name, response_file, archive):
         """ Adds point response to staged point_request. """
