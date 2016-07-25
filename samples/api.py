@@ -107,7 +107,7 @@ class RecastApi(object):
         staged_param = {}
         staged_param[param_key] = {}
         staged_param[param_key]['point_id'] = parameter_id
-        staged_param[param_key]['coordinates'] = coordinates
+        staged_param[param_key]['data'] = coordinates
         point_response['coordinates'] = []
         
         for coordinate in coordinates:
@@ -133,7 +133,7 @@ class RecastApi(object):
             staged_param[param_key]['basic'][basic_key] = {}
             staged_param[param_key]['basic'][basic_key] = {
                 'basic_id': file_response['id'],
-                'data': data
+                'data': basic['filename']
             }
 
         self.staged_point_request[param_key] = {}
@@ -218,7 +218,12 @@ class RecastApi(object):
         return keys
 
     def add_point_response(self, key_name, response_file, archive):
-        """ Adds point response to staged point_request. """
+        """ Adds point response to staged point_request.
+        
+        :param key_name: point request key name in the directory
+        :param response_file: Point response file, see pointresponse.json for format
+        :param archive: file to upload
+        """
         
         # find point_request_id given key name
         point_request_id = 0
@@ -244,7 +249,11 @@ class RecastApi(object):
         return True
 
     def add_basic_response(self, point_key_name, key_name, basic_response_data, archive):
-        """Adds basic response to staged basic_request. """
+        """Adds basic response to staged basic_request.
+        
+        
+        
+        """
 
         point_request_id = 0
         if self.staged_point_request.has_key(point_key_name):
@@ -253,7 +262,7 @@ class RecastApi(object):
             logging.error('Point request key name not found!')
             raise Exception('Point key name not found!')
         basic_request_id = 0
-        if self.staged_point_request.has_key(key_name):
+        if self.staged_point_request.has_key(point_key_name):
             basic_request_id = self.staged_point_request[point_key_name]\
                                ['basic'][key_name]['basic_id']
         else:
@@ -263,6 +272,7 @@ class RecastApi(object):
         # get point response id given the point request id
         try:
             point_response = recastapi.response.get.point_response_by_id(point_request_id)
+            print point_response
             point_response_id = point_response['id']
         except Exception, e:
             print e
