@@ -87,7 +87,7 @@ def point_response_by_id(point_request_id):
     """ returns point response JSON given point request id. """
     
     url = '{}?where=point_request_id=="{}"'.format(
-        recastapi.ENDPOINTS['POINTS_RESPONSES'], point_request_id)
+        recastapi.ENDPOINTS['POINT_RESPONSES'], point_request_id)
     response = recastapi.get(url)
     if len(response['_items']) > 1:
         raise Exception('Duplicated data! Internal Server error')
