@@ -68,8 +68,8 @@ class RecastApi(object):
         e.g. input data structure
         {
             'coordinates': [
-                             {'name': 'a', 'coordinate:' 1},
-                             {'name': 'b', 'coordinate': 2}
+                             {'name': 'a', 'value': 1},
+                             {'name': 'b', 'value': 2}
                            ],
             'basic': [
                        {'filename': 'samples/file11.zip'},
@@ -81,8 +81,8 @@ class RecastApi(object):
 
         if data is None:
             # for testing purpose
-            data = {'coordinates': [{'name': 'a', 'coordinate': 1},
-                                    {'name': 'b', 'coordinate': 2}
+            data = {'coordinates': [{'name': 'a', 'value': 1},
+                                    {'name': 'b', 'value': 2}
                                 ],
                     'basic': [{'filename': 'samples/file11.zip'},
                               {'filename': 'samples/file12.zip'}]
@@ -149,7 +149,7 @@ class RecastApi(object):
         :param tentative_key: initial key.
         """
         if self.staged_point_request.has_key(tentative_key):            
-            return self.make_parameter_key('{}_{}'.format(tentative_key))
+            return self.make_parameter_key('{}_{}'.format(tentative_key, 1))
         return tentative_key
 
     def add_point_from_file(self, param_file='samples/param_data.yaml'):
@@ -172,8 +172,8 @@ class RecastApi(object):
             point_response = recastapi.request.post.parameter(request_id=self.request_id)
             parameter_id = point_response['id']
             logging.debug('Added point request with ID: {}'.format(parameter_id))
-            n_keys = len(self.staged_point_request_keys())
-            param_key = 'param_{}'.format(n_keys)
+            n_keys = len(self.staged_point_request.keys())
+            param_key = 'param_{}'.format(n_keys+i)
             keys.append(param_key)
             staged_param[param_key] = {}
             staged_param[param_key]['point_id'] = parameter_id
@@ -211,7 +211,8 @@ class RecastApi(object):
                     
                 logging.debug('basic key: {}'.format(basic_key))
 
-        self.staged_point_request = staged_param
+        for k in staged_param.keys():
+            self.staged_point_request[k] = staged_param[k]
         logging.debug('Added all files')
         self.all_responses.append(response)
         return keys
