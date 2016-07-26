@@ -11,13 +11,21 @@ def response(request_id, model_id=None):
 
     :return: JSON object
     """
-    payload = {
-        'scan_request_id': request_id,
-        'model_id': model_id
-    }
-    
-    url = '{}/'.format(recastapi.ENDPOINTS['RESPONSES'])
-    return recastapi.post(url, json=payload)
+    # check if there is a response for this request
+    scan_response_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['RESPONSES'], request_id)
+    scan_responses = recastapi.get(scan_response_url)
+
+    if not scan_responses['_items']:
+        payload = {
+            'scan_request_id': request_id,
+            'model_id': model_id
+        }
+        
+        url = '{}/'.format(recastapi.ENDPOINTS['RESPONSES'])
+        return recastapi.post(url, json=payload)
+    else:
+        return scan_responses['_items'][0]
 	
 def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
     """ adds and associates parameter to response and request

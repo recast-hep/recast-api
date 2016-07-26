@@ -83,7 +83,17 @@ def parameter(request_id, parameter_index):
     
     return response['_items'][0]
         
-
+def point_response_by_id(point_request_id):
+    """ returns point response JSON given point request id. """
+    
+    url = '{}?where=point_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_RESPONSES'], point_request_id)
+    response = recastapi.get(url)
+    if len(response['_items']) > 1:
+        raise Exception('Duplicated data! Internal Server error')
+    if not response['_items']:
+        raise Exception('No record found!')
+    return response['_items'][0]
     
 def basic(request_id, parameter_index, basic_index):
     """ Gets the basic response

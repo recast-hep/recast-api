@@ -48,6 +48,7 @@ def query(query=None):
         return response['_items']
     else:        
         return response
+    
 
 def parameter(request_id,
               parameter_index=None):
@@ -128,6 +129,12 @@ def coordinate(request_id, parameter_index=0, coordinate_index=None):
         print "\t ******* Coordinate index out of bounds"
         print '\n'
         raise RuntimeError
+
+def basic_request(basic_request_id):
+    """" Returns basic JSON. """
+    url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_REQUESTS'], basic_request_id)
+    response = recastapi.get(url)
+    return response
 
 def archives(request_id, parameter_index=0, basic_index=None):
     """ Returns list of files given the request id and parameter index

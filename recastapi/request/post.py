@@ -268,4 +268,3 @@ def upload_file_by_index(request_id, parameter_index, filename):
 
     return upload_file(parameter_id=parameter_id,
                        filename=filename)
-
