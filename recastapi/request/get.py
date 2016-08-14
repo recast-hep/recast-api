@@ -136,6 +136,10 @@ def basic_request(basic_request_id):
     response = recastapi.get(url)
     return response
 
+def point_request(point_request_id):
+    url = '{}/{}'.format(recastapi.ENDPOINTS['POINT_REQUESTS'],point_request_id)
+    return recastapi.get(url)
+
 def point_requests_for_scan(scan_requests_id):
     filtered_point_url = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'],
