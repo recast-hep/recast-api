@@ -1,4 +1,4 @@
-BASEURL = 'https://recast-rest-api.herokuapp.com/'
+BASEURL = 'http://recast-frontend-beta.cern.ch:81/'
 
 
 
