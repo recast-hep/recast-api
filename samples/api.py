@@ -78,15 +78,6 @@ class RecastApi(object):
         }
         :return param_key
         """
-
-        if data is None:
-            # for testing purpose
-            data = {'coordinates': [{'name': 'a', 'value': 1},
-                                    {'name': 'b', 'value': 2}
-                                ],
-                    'basic': [{'filename': 'samples/file11.zip'},
-                              {'filename': 'samples/file12.zip'}]
-                }
         try:
             coordinates = data['coordinates']
             basic_requests = data['basic']
@@ -141,8 +132,12 @@ class RecastApi(object):
         self.all_responses.append(point_response)
         logging.debug('Added all files')
         return param_key
+<<<<<<< HEAD
 
 
+=======
+
+>>>>>>> 5aebd4e8fadcd0b80f91ed5f1ea328dc4d439dbf
     def make_parameter_key(self, tentative_key):
         """ makes sure there are no duplicate keys.
 
@@ -152,7 +147,7 @@ class RecastApi(object):
             return self.make_parameter_key('{}_{}'.format(tentative_key, 1))
         return tentative_key
 
-    def add_point_from_file(self, param_file='samples/param_data.yaml'):
+    def add_point_from_file(self, param_file):
         """ Function to add point requests.
 
         added and saved into dict that can later be retrieved to use
@@ -272,7 +267,7 @@ class RecastApi(object):
         except Exception, e:
             print e
             raise Exception('No point response available for this basic request!')
-            
+
         logging.info('Adding basic request!')
         responses = recastapi.response.post.basic_response(
             yaml_file=basic_response_data,

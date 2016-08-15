@@ -143,52 +143,64 @@ def basic_request(basic_request_id):
     response = recastapi.get(url)
     return response
 
-def archives(request_id, parameter_index=0, basic_index=None):
+def point_request(point_request_id):
+    url = '{}/{}'.format(recastapi.ENDPOINTS['POINT_REQUESTS'],point_request_id)
+    return recastapi.get(url)
+
+def point_requests_for_scan(scan_requests_id):
+    filtered_point_url = '{}?where=scan_request_id=="{}"'.format(
+        recastapi.ENDPOINTS['POINT_REQUESTS'],
+        scan_requests_id
+    )
+    return recastapi.get(filtered_point_url)
+
+def basic_requests_for_point(point_request_id):
+    basic_url = '{}?where=point_request_id=="{}"'.format(
+                        recastapi.ENDPOINTS['BASIC_REQUESTS'],
+                        point_request_id)
+    return recastapi.get(basic_url)
+
+def archives(request_id, point_index=0, basic_index=None):
     """ Returns list of files given the request id and parameter index
 
     :param request_id: ID of the request
-    :param parameter_index: index of the parameter
+    :param parameter_index: index of the parameter point
     :param basic_index: index of the basic request
 
 
     :return: JSON object `or` list if basic_index is None
     """
-    if not parameter_index and not parameter_index ==0:
+    if not parameter_index and not point_index ==0:
         print '-'*60
         print "Exception in user code:"
         print "\t ******* Parameter index not valid"
         print '\n'
         raise RuntimeError
 
-    parameters_url = '{}?where=scan_request_id=="{}"'.format(
-        recastapi.ENDPOINTS['POINT_REQUESTS'],
-        request_id
-    )
-    parameter_responses = recastapi.get(parameters_url)
-
-    parameter_id = parameter_responses
+    points_of_scan = point_requests_for_scan(request_id)
 
     #check if we have the right parameter_index
-    if parameter_index > len(parameter_responses['_items']):
+    if point_index > len(points_of_scan['_items']):
         print '-'*60
         print "Excepton in user code:"
         print "\t ********* Parameter index out of bound"
         print '\n'
         raise RuntimeError
 
-    parameter_id = parameter_responses['_items'][parameter_index]['id']
+    point_request_id = points_of_scan['_items'][point_index]['id']
+    basic_responses = basic_requests_for_point(point_request_id)
 
     basic_url = '{}?where=point_request_id=="{}"'.format(
         recastapi.ENDPOINTS['BASIC_REQUESTS'], parameter_id)
 
     basic_response = recastapi.get(basic_url)
 
-    if not basic_index and not basic_index == 0:
+    if basic_index is None:
         #return all basic request index
         basic_responses = []
         for i, basic in enumerate(basic_response['_items']):
             response = download(request_id=request_id,
-                                point_request_index=parameter_index,
+                                point_request_index=point_index,
                                 basic_request_index=i,
                                 download_path=None,
                                 dry_run=True)
