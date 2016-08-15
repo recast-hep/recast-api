@@ -1,6 +1,5 @@
-BASEURL = 'https://recast-rest-api.herokuapp.com/'
-
-
+import os
+BASEURL = os.environ.get('RECAST_APIURL','http://recast-frontend-beta.cern.ch:81/')
 
 ENDPOINTS = {
     'USERS': BASEURL + 'users',
@@ -18,7 +17,7 @@ ENDPOINTS = {
     'HISTOGRAMS': BASEURL + 'response_archives'
     }
 
-ORCID_ID = ''
-ACCESS_TOKEN = ''
 
+ORCID_ID = os.environ.get('RECAST_ORCID','')
+ACCESS_TOKEN = os.environ.get('RECAST_APITOKEN','')
 allowed_extension = '.zip'

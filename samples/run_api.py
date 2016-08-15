@@ -2,9 +2,9 @@ from samples.api import RecastRequest
 import recastapi
 
 
-request_id = 0
+request_id = 9
 
-if request_id = 0:
+if request_id == 0:
     raise Exception('request id not set')
 
 r = RecastRequest(request_id)

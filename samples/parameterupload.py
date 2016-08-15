@@ -35,7 +35,7 @@ for parameter in parameter_points:
     request_ids.append(point_response['id'])
 
 request_mapping = dict(zip(parameter_points, request_ids))
-                       
+
 print 'Uploading files ...'
 for coordinates, filename in files.iteritems():
 
@@ -43,4 +43,3 @@ for coordinates, filename in files.iteritems():
     file_response = recastapi.request.post.upload_file(parameter_id=point_request_id,
                                                        filename=filename)
     print 'Successfully uploaded file {}'.format(filename)
-

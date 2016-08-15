@@ -3,14 +3,13 @@ from termcolor import colored
 import uuid
 import yaml
 
-
 def response(request_id, model_id=None):
-    """create response.
-    
-    :param request_id: ID of the request
-
+    """
+    create a scan response.
+    :param request_id: ID of the scan request
     :return: JSON object
     """
+
     # check if there is a response for this request
     scan_response_url = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['RESPONSES'], request_id)
@@ -21,12 +20,18 @@ def response(request_id, model_id=None):
             'scan_request_id': request_id,
             'model_id': model_id
         }
-        
+
         url = '{}/'.format(recastapi.ENDPOINTS['RESPONSES'])
         return recastapi.post(url, json=payload)
     else:
         return scan_responses['_items'][0]
-	
+
+def point_response(yaml_file, scan_response_id, point_request_id, filename):
+    '''
+    creates a point response
+    '''
+    return point_response(yaml_file, scan_response_id, point_request_id, filename)
+
 def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
     """ adds and associates parameter to response and request
 
@@ -39,11 +44,11 @@ def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
     """
 
     recastapi.file_check(filename)
-    
+
     f = open(yaml_file)
     data_map = yaml.load(f)
     f.close()
-    
+
     try:
 	payload = {
 	    'lower_1sig_expected_CLs': float(data_map['lower_1sig_expected_CLs']),
@@ -61,19 +66,19 @@ def parameter_response(yaml_file, scan_response_id, point_request_id, filename):
 	print "YAML file not correctly formatted: ", e
 	print "-"*60
 	raise RuntimeError
-    
+
     print payload
     url = '{}/'.format(recastapi.ENDPOINTS['POINT_RESPONSES'])
     response = recastapi.post(url, json=payload)
-    
+
     if filename:
 	response['metadata'] = upload_file(filename, point_response_id=response['id'])
-        	
+
     return response
-	
+
 def basic_response(yaml_file, point_response_id, basic_request_id, filename):
     """" Adds and associtate basic response to parameter response
-    
+
     :param yaml_file: file containing data of the basic response
     :param point_response_id: parameter response ID
     :param basic_request_id: index of the basic request
@@ -81,13 +86,13 @@ def basic_response(yaml_file, point_response_id, basic_request_id, filename):
 
     :return: JSON object
     """
-    
+
     recastapi.file_check(filename)
-    
+
     f = open(yaml_file)
     data_map = yaml.load(f)
     f.close()
-    
+
     try:
 	payload = {
 	    'lower_1sig_expected_CLs': float(data_map['lower_1sig_expected_CLs']),
@@ -108,17 +113,17 @@ def basic_response(yaml_file, point_response_id, basic_request_id, filename):
 
     url = '{}/'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'])
     response = recastapi.post(url, json=payload)
-    
+
     if filename:
 	response['metadata'] = upload_file(filename, basic_response_id=response['id'])
-        
+
     return response
 
 def upload_file(filename,
 	        point_response_id=None,
 		basic_response_id=None):
-    """Uploads response file 
-    
+    """Uploads response file
+
     Either the basic response or parameter response has to be provided
 
 
@@ -140,9 +145,9 @@ def upload_file(filename,
         print "Point response ID and basic response ID"
         print "Please provide either a point response ID and a basic response ID"
         raise RuntimeError
-    
+
     file_uuid = str(uuid.uuid1()) # how will response provi
-    if point_response_id:		
+    if point_response_id:
 	payload = {
 	    'file_name': file_uuid,
 	    'original_file_name': filename,
@@ -158,7 +163,7 @@ def upload_file(filename,
 	print "*"*60
 	print "Either a point response ID or basic response ID needs to be provided"
 	raise RuntimeError
-	
+
     files = {'file': open(filename, 'rb')}
     url = '{}/'.format(recastapi.ENDPOINTS['HISTOGRAMS'])
     return recastapi.post(url, data=payload, files=files)
@@ -192,7 +197,7 @@ def parameter_response_by_index(yaml_file, request_id, parameter_index, filename
     # Query the point request for a given request_id get the index in the list
     point_request_url = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)
-    point_requests = recastapi.get(point_request_url)    
+    point_requests = recastapi.get(point_request_url)
 
     if parameter_index > len(point_requests['_items'])-1:
         print "*"*60
@@ -223,7 +228,7 @@ def basic_response_by_index(yaml_file,
     :return: JSON object
     """
     recastapi.file_check(filename)
-    
+
     # Find the point_response_id
     point_request_url = '{}?where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'], request_id)

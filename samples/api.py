@@ -25,7 +25,7 @@ class RecastApi(object):
         """ Printout the staged parameters. """
         logging.info('point request: {}'.format(self.staged_point_request))
         logging.info('basic request: {}'.format(self.staged_basic_request))
-        
+
     def current_responses(self):
         """ Prints latest response from API. """
         if self.all_responses:
@@ -46,7 +46,7 @@ class RecastApi(object):
         except Exception, e:
             print e
             raise Exception('File not correctly formatted!')
-            
+
     def dump(self, filename=None):
         """ Dumps objects into files. """
         if not filename:
@@ -62,7 +62,7 @@ class RecastApi(object):
 
     def add_point(self, data, param_key=None):
         """ adds point request and archive data from a JSON datastructure.
-        
+
         :param param_key: parameter key in the staged_point_request data structure
         :param data: data to be added
         e.g. input data structure
@@ -86,8 +86,8 @@ class RecastApi(object):
                                 ],
                     'basic': [{'filename': 'samples/file11.zip'},
                               {'filename': 'samples/file12.zip'}]
-                }            
-        try: 
+                }
+        try:
             coordinates = data['coordinates']
             basic_requests = data['basic']
         except Exception, e:
@@ -99,7 +99,7 @@ class RecastApi(object):
             param_key = self.make_parameter_key('param_{}'.format(n_keys))
         elif self.staged_point_request.has_key(param_key):
             raise Exception('Parameter key {} already exists!'.format(param_key))
-        
+
         logging.info('Adding parameter for: {}'.format(coordinates))
         point_response = recastapi.request.post.parameter(request_id=self.request_id)
         parameter_id = point_response['id']
@@ -109,17 +109,17 @@ class RecastApi(object):
         staged_param[param_key]['point_id'] = parameter_id
         staged_param[param_key]['data'] = coordinates
         point_response['coordinates'] = []
-        
+
         for coordinate in coordinates:
             logging.info('\t Adding coordinates: {}'.format(coordinate))
             coordinate_response = recastapi.request.post.coordinate(
                 parameter_id=parameter_id,
                 coordinate_name=coordinate['name'],
                 coordinate_value=float(coordinate['value'])
-                )                    
+                )
             logging.debug('Added coordinate with ID: {}'.format(coordinate_response['id']))
             point_response['coordinates'].append(coordinate_response)
-            
+
         point_response['files'] = []
         staged_param[param_key]['basic'] = {}
         for i, basic in enumerate(basic_requests):
@@ -141,20 +141,20 @@ class RecastApi(object):
         self.all_responses.append(point_response)
         logging.debug('Added all files')
         return param_key
-        
+
 
     def make_parameter_key(self, tentative_key):
         """ makes sure there are no duplicate keys.
-        
+
         :param tentative_key: initial key.
         """
-        if self.staged_point_request.has_key(tentative_key):            
+        if self.staged_point_request.has_key(tentative_key):
             return self.make_parameter_key('{}_{}'.format(tentative_key, 1))
         return tentative_key
 
     def add_point_from_file(self, param_file='samples/param_data.yaml'):
         """ Function to add point requests.
-        
+
         added and saved into dict that can later be retrieved to use
         for adding.
         :returns a list of parameter keys to refer to data added
@@ -178,11 +178,11 @@ class RecastApi(object):
             staged_param[param_key] = {}
             staged_param[param_key]['point_id'] = parameter_id
             staged_param[param_key]['data'] = parameter['coordinates']
-            
+
             response.append(point_response)
             response[-1]['coordinate'] = []
-            
-            for coordinate in parameter['coordinates']:                
+
+            for coordinate in parameter['coordinates']:
                 # add coordinates one by one
                 logging.info('\t Adding coordinates: {}'.format(coordinate))
                 coordinate_response = recastapi.request.post.coordinate(
@@ -191,12 +191,12 @@ class RecastApi(object):
                     coordinate_value=float(coordinate['value'])
                     )
                 logging.debug('Added coordinate with ID: {}'.format(coordinate_response['id']))
-                response[-1]['coordinate'].append(coordinate_response)                
-                
+                response[-1]['coordinate'].append(coordinate_response)
+
             response[-1]['files'] = []
             staged_basic = {}
             staged_param[param_key]['basic'] = {}
-            for j, basic in enumerate(parameter['basicrequests']):                
+            for j, basic in enumerate(parameter['basicrequests']):
                 # add basic requests one by one
                 logging.info('\t Uploading file: {}'.format(basic))
                 file_response = recastapi.request.post.upload_file(parameter_id=parameter_id,
@@ -208,7 +208,7 @@ class RecastApi(object):
                 staged_param[param_key]['basic'][basic_key] = {
                     'basic_id': file_response['id'],
                     'data': basic}
-                    
+
                 logging.debug('basic key: {}'.format(basic_key))
 
         for k in staged_param.keys():
@@ -219,24 +219,24 @@ class RecastApi(object):
 
     def add_point_response(self, key_name, response_file, archive):
         """ Adds point response to staged point_request.
-        
+
         :param key_name: point request key name in the directory
         :param response_file: Point response file, see pointresponse.json for format
         :param archive: file to upload
         """
-        
+
         # find point_request_id given key name
         point_request_id = 0
         if self.staged_point_request.has_key(key_name):
             point_request_id = self.staged_point_request[key_name]['point_id']
-        else:            
+        else:
             logging.error('Key not found!')
-            raise Exception('Key name not found!')        
+            raise Exception('Key name not found!')
         response = {}
         logging.info('Creating a scan response')
         scan_response = recastapi.response.post.response(request_id=self.request_id)
         logging.info('Adding a point response to point id: {}'.format(point_request_id))
-        
+
         response = recastapi.response.post.parameter_response(
             yaml_file=response_file,
             point_request_id=point_request_id,
@@ -250,11 +250,7 @@ class RecastApi(object):
 
     def add_basic_response(self, point_key_name, key_name, basic_response_data, archive):
         """Adds basic response to staged basic_request.
-        
-        
-        
         """
-
         point_request_id = 0
         if self.staged_point_request.has_key(point_key_name):
             point_request_id = self.staged_point_request[point_key_name]['point_id']
@@ -272,12 +268,11 @@ class RecastApi(object):
         # get point response id given the point request id
         try:
             point_response = recastapi.response.get.point_response_by_id(point_request_id)
-            print point_response
             point_response_id = point_response['id']
         except Exception, e:
             print e
             raise Exception('No point response available for this basic request!')
-
+            
         logging.info('Adding basic request!')
         responses = recastapi.response.post.basic_response(
             yaml_file=basic_response_data,
