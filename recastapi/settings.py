@@ -5,17 +5,18 @@ ENDPOINTS = {
     'USERS': BASEURL + 'users',
     'RUN_CONDITIONS': BASEURL + 'run_conditions',
     'ANALYSIS': BASEURL + 'analysis',
-    'REQUESTS': BASEURL + 'requests',
+
+    'SCAN_REQUESTS': BASEURL + 'scan_requests',
     'POINT_REQUESTS': BASEURL + 'point_requests',
-    'PARAMETER_POINTS': BASEURL + 'parameter_points',
+    'POINT_COORDINATES': BASEURL + 'point_coordinates',
     'BASIC_REQUESTS': BASEURL + 'basic_requests',
-    'FILES': BASEURL + 'request_archives',
-    'SUBSCRIPTIONS': BASEURL + 'subscriptions',
-    'RESPONSES': BASEURL + 'responses',
+    'REQUEST_ARCHIVES': BASEURL + 'request_archives',
+
+    'SCAN_RESPONSES': BASEURL + 'scan_responses',
     'POINT_RESPONSES': BASEURL + 'point_responses',
     'BASIC_RESPONSES': BASEURL + 'basic_responses',
-    'HISTOGRAMS': BASEURL + 'response_archives'
-    }
+    'RESPONSE_ARCHIVES': BASEURL + 'response_archives'
+}
 
 
 ORCID_ID = os.environ.get('RECAST_ORCID','')

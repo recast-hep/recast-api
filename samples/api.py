@@ -132,12 +132,7 @@ class RecastApi(object):
         self.all_responses.append(point_response)
         logging.debug('Added all files')
         return param_key
-<<<<<<< HEAD
 
-
-=======
-
->>>>>>> 5aebd4e8fadcd0b80f91ed5f1ea328dc4d439dbf
     def make_parameter_key(self, tentative_key):
         """ makes sure there are no duplicate keys.
 
