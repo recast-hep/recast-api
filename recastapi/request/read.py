@@ -96,7 +96,7 @@ def basic_request_of_point(point_request_id):
     basic_url = '{}?where=point_request_id=="{}"'.format(
                         recastapi.ENDPOINTS['BASIC_REQUESTS'],
                         point_request_id)
-    return recastapi.get(basic_url)
+    return recastapi.get(basic_url)['_items']
 
 def request_archive(archive_id):
     archive_url = '{}/{}'.format(recastapi.ENDPOINTS['REQUEST_ARCHIVES'], archive_id)
