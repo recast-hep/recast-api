@@ -92,7 +92,7 @@ def coordinate(point_request_id, coordinate_index=None):
         raise RuntimeError('Coordinate index out of bounds')
 
 
-def basic_request_for_point(point_request_id):
+def basic_request_of_point(point_request_id):
     basic_url = '{}?where=point_request_id=="{}"'.format(
                         recastapi.ENDPOINTS['BASIC_REQUESTS'],
                         point_request_id)
