@@ -24,7 +24,6 @@ def scan_response(scan_request_id):
         existing = {k:v for k,v in existing.iteritems() if not (k.startswith('_') or k=='id')}
         recastapi.patch(url,existing)
         scan_response =  recastapi.response.read.scan_response(scan_request_id = scan_request_id)
-        print 's EXISTS, return',scan_response
         return scan_response
 
     url = '{}/'.format(recastapi.ENDPOINTS['SCAN_RESPONSES'])
@@ -44,9 +43,6 @@ def point_response(scan_response_id,point_request_id,result_data):
         'point_request_id': point_request_id
     }
     payload.update(**result_data)
-
-
-    print 'PAYLOAD',payload
 
     existing = recastapi.response.read.point_response(point_request_id = point_request_id)
     if existing:
