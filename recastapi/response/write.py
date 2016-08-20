@@ -82,16 +82,35 @@ def basic_response(point_response_id,basic_request_id,result_data):
 
 def basic_response_with_archive(point_response_id,basic_request_id,filename, result_data):
     br = basic_response(point_response_id,basic_request_id,result_data)
-    request_archive(br['id'],filename)
+    response_archive(br['id'],filename)
     return br
 
-def request_archive(basic_request_id, filename = None):
+def response_archive(basic_response_id, filename = None):
+    basic_response = recastapi.response.read.basic_response(basic_response_id)
+    existing = recastapi.response.read.response_archive(basic_response['id'])
+
+
     payload = {
-        'basic_response_id': basic_request_id,
+        'basic_response_id': basic_response_id,
         'original_file_name': os.path.basename(filename),
     }
 
     files = {'file': open(filename, 'rb')} if filename else {}
+
+    if existing:
+        print 'we already have an existing archive.. not sure what to do...'
+        url = '{}/{}'.format(recastapi.ENDPOINTS['RESPONSE_ARCHIVES'],existing['id'])
+        existing.update(**payload)
+        existing = {k:v for k,v in existing.iteritems() if not (k.startswith('_') or k=='id')}
+
+        print 'patching with this',existing
+        recastapi.patch2(url,data = existing, files = files)
+        # return recastapi.response.read.basic_response(basic_request_id = basic_request_id)
+
+
+        return
+
+
     url = '{}/'.format(recastapi.ENDPOINTS['RESPONSE_ARCHIVES'])
     basic_request_response = recastapi.post(
         url,

@@ -59,8 +59,15 @@ def put(url, data=None):
 
     return json_obj.loads(response.content)
 
-def patch(url, data=None):
-    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data)
+def patch(url, data=None, files = None):
+    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data, files = files)
+    if not response.ok:
+        print_failure(response)
+
+    return json_obj.loads(response.content)
+
+def patch2(url, data=None, files = None):
+    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), data = data, files = files)
     if not response.ok:
         print_failure(response)
 
