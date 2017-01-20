@@ -2,11 +2,12 @@ from settings import ORCID_ID, ACCESS_TOKEN, ENDPOINTS, BASEURL, allowed_extensi
 import requests as httprequest
 import traceback, sys
 import json as json_obj
+import yaml
 import os
 import logging
 log = logging.getLogger(__name__)
 
-SSL_VERIFY = os.environ['RECAST_SSL_VERIFY']
+SSL_VERIFY = yaml.load(os.environ['RECAST_SSL_VERIFY'])
 
 def print_failure(response):
     print '-'*60
