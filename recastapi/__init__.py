@@ -6,6 +6,8 @@ import os
 import logging
 log = logging.getLogger(__name__)
 
+SSL_VERIFY = os.environ['RECAST_SSL_VERIFY']
+
 def print_failure(response):
     print '-'*60
     print "", response.status_code
@@ -34,40 +36,41 @@ def post(url, data=None, params=None, files=None, json=None):
                                 auth=(ORCID_ID, ACCESS_TOKEN),
                                 params=params,
                                 files=files,
-                                json=json)
+                                json=json,
+                                verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
     return json_obj.loads(response.content)
 
 def get(url, params=None):
-    response = httprequest.get(url, params=params)
+    response = httprequest.get(url, params=params,verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
     return json_obj.loads(response.content)
 
 def delete(url):
-    response = httprequest.delete(url)
+    response = httprequest.delete(url, verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
 
     return json_obj.loads(response.content)
 
 def put(url, data=None):
-    response = httprequest.put(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data)
+    response = httprequest.put(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data, verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
 
     return json_obj.loads(response.content)
 
 def patch(url, data=None, files = None):
-    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data, files = files)
+    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), json = data, files = files, verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
 
     return json_obj.loads(response.content)
 
 def patch2(url, data=None, files = None):
-    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), data = data, files = files)
+    response = httprequest.patch(url, auth=(ORCID_ID, ACCESS_TOKEN), data = data, files = files, verify = SSL_VERIFY)
     if not response.ok:
         print_failure(response)
 
