@@ -16,7 +16,7 @@ setup(
   install_requires = 
   [
    'requests',
-   'click'
+   'click',
    'pyyaml',
    'termcolor',
    'urllib3',
