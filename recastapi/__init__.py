@@ -7,7 +7,7 @@ import os
 import logging
 log = logging.getLogger(__name__)
 
-SSL_VERIFY = yaml.load(os.environ['RECAST_SSL_VERIFY'])
+SSL_VERIFY = yaml.load(os.environ.get('RECAST_SSL_VERIFY','true'))
 
 def print_failure(response):
     print '-'*60

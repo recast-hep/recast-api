@@ -8,10 +8,15 @@ setup(
   author = 'Kyle Cranmer, Lukas Heinrich',
   author_email = 'cranmer@cern.ch, lukas.heinrich@cern.ch',
   packages = find_packages(),
+  entry_points = {
+    'console_scripts': [
+      'recast-createscan = recastapi.apicli:createscan'
+    ]
+  },
   install_requires = 
-  ['requests',
-   'werkzeug',
-   'boto3',
+  [
+   'requests',
+   'click'
    'pyyaml',
    'termcolor',
    'urllib3',
