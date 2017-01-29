@@ -1,0 +1,26 @@
+title: a completely new request p3
+analysisid: 1
+description: >-
+  a somewhat
+  lenghty description
+  goes here..
+reason: >-
+  this is a short reasoning
+  why this model is not sufficiently
+  covered using existing results
+additional_information: >-
+  and possibly some additional
+  information that doesn't really
+  fit neatly elsewhere
+parameters:
+  - mGluino
+  - mSinglino
+points:
+  - coordinates: [150.0, 150.0]
+    data: point_150_150
+  - coordinates: [150.0, 200.0]
+    data: point_150_200
+  - coordinates: [200.0, 150.0]
+    data: point_200_150
+  - coordinates: [200.0, 200.0]
+    data: point_200_200
