@@ -1,29 +1,17 @@
 import yaml
 import json
+import recastapi.analysis.read
 import recastapi.request.write
 import click
 import zipfile
 import tempfile
 import os
 
-@click.command()
-@click.argument('specfile')
-def createscan(specfile):
-    spec = yaml.load(open(specfile))
-    scanrequest = recastapi.request.write.scan_request(
-        spec['analysis_id'],
-        spec['title'],
-        spec['description'],
-        spec['reason'],
-        spec['additional_information']
-    )
-
-    parnames = spec['parameters']
-    points = spec['points']
-
+def addpoints_to_scan(scanid,req_format,parnames,points):
     point_requests = []
     basic_requests = []
-    for p in points:
+
+    for i,p in enumerate(points):
         coordinates = p['coordinates']
         data = p['data']
 
@@ -42,18 +30,53 @@ def createscan(specfile):
             raise click.ClickException('point data needs to be zipfiles or directory')
 
         pointdict = dict(zip(parnames,coordinates))
-        pr = recastapi.request.write.point_request_with_coords(scanrequest['id'],pointdict)
+        pr = recastapi.request.write.point_request_with_coords(scanid,pointdict)
         point_requests += [{'point':pointdict,'id':pr['id']}]
-        br = recastapi.request.write.basic_request_with_archive(pr['id'],archive)
-        basic_requests += [{'point':pointdict,'id':br['id']}]
+        br = recastapi.request.write.basic_request_with_archive(pr['id'],archive,req_format)
+        basic_requests += [{'point':pointdict,'id':br['id'], 'point_request': pr['id']}]
+        click.secho('uploaded {}/{} requests'.format(i+1,len(points)))
+    return point_requests, basic_requests
 
-    click.echo(yaml.safe_dump({
+
+@click.command()
+@click.argument('specfile')
+@click.argument('outputfile')
+def createscan(specfile,outputfile):
+    spec = yaml.load(open(specfile))
+
+    analysis_info = recastapi.analysis.read.analysis_by_pub_identifier(*spec['pubkey'].split('/'))
+    if not analysis_info:
+        raise click.ClickException('Analysis {} not known, import it first.'.format(spec['pubkey']))
+
+    scanrequest = recastapi.request.write.scan_request(
+        analysis_info['id'],
+        spec['title'],
+        spec['description'],
+        spec['reason'],
+        spec['additional_information']
+    )
+
+
+    parnames = spec['parameters']
+    points = spec['points']
+
+    prlist, brlist = addpoints_to_scan(scanrequest['id'],spec['request_format'],parnames,points)
+
+    yaml.safe_dump({
             'scan_id': scanrequest['id'],
-            'point_requests': point_requests,
-            'basic_requests': basic_requests
+            'point_requests': prlist,
+            'basic_requests': brlist
         },
+        open(outputfile,'w'),
         default_flow_style = False
-    ))
+    )
+
+@click.command()
+@click.argument('specfile')
+@click.argument('outputfile')
+def addtoscan(specfile,outputfile):
+    #existing_points = {tuple(x['value'] for x in p['point_coordinates']):p['id'] for p in  recastapi.request.read.point_request_of_scan(2) }
+    pass
 
 if __name__ == '__main__':
     createscan()

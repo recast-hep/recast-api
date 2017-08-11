@@ -64,21 +64,22 @@ def point_request_with_coords(scan_request_id,coordinate_map):
         coordinate(k,float(v),pr['id'])
     return pr
 
-def basic_request(point_request_id):
+def basic_request(point_request_id,request_format):
     """Adds basic request
     :param point_request_id: ID of the point request
     :return: JSON object
     """
     user = recastapi.user.read.this_user()
     payload = {
+        'request_format': request_format,
         'requester_id': user['id'],
         'point_request_id': point_request_id,
     }
     url = '{}/'.format(recastapi.ENDPOINTS['BASIC_REQUESTS'])
     return recastapi.post(url, data=payload)
 
-def basic_request_with_archive(point_request_id,filename):
-    br = basic_request(point_request_id)
+def basic_request_with_archive(point_request_id,filename,request_format):
+    br = basic_request(point_request_id,request_format)
     request_archive(br['id'],filename)
     return br
 
@@ -90,9 +91,9 @@ def request_archive(basic_request_id, filename = None):
 
     files = {'file': open(filename, 'rb')} if filename else {}
     url = '{}/'.format(recastapi.ENDPOINTS['REQUEST_ARCHIVES'])
-    basic_request_response = recastapi.post(
+    basic_request_archive = recastapi.post(
         url,
         data=payload,
         files=files,
     )
-    return basic_request_response
+    return basic_request_archive

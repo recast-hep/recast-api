@@ -3,6 +3,7 @@ import recastapi.user.read
 from termcolor import colored
 import urllib
 import yaml
+import json
 
 def scan_response(scan_response_id =  None, scan_request_id = None):
     """List request depending on criteria
@@ -56,29 +57,28 @@ def point_response(point_response_id =  None, point_request_id = None):
             return None
         return response['_items'][0]
 
-def basic_response(basic_response_id =  None, basic_request_id = None):
+def basic_response(basic_response_id =  None, basic_request_id_filter = None, description_filter = None):
     """" Returns basic JSON. """
 
-    if (basic_response_id is None) and (basic_request_id is None):
-        response = recastapi.get(recastapi.ENDPOINTS['BASIC_RESPONSES'])
-        return response['_items']
+    query = {}
+    if description_filter:
+        query.update(description = description_filter)
+    if basic_request_id_filter:
+        query.update(basic_request_id = basic_request_id_filter)
+    if basic_response_id:
+        query.update(id = basic_response_id)
 
-    if (basic_response_id is not None) and (basic_request_id is not None):
-        raise RuntimeError('Cannot fetch basic_response_id and basic_request_id simultaneously')
+    query = 'where={}'.format(json.dumps(query))
 
-    elif basic_response_id is not None:
-        url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'], basic_response_id)
-        response = recastapi.get(url)
-        return response
+    print query
 
-    elif basic_request_id is not None:
-        selection_str = '?where=basic_request_id=="{}"'.format(basic_request_id)
-        url = '{}{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'], selection_str)
-        response = recastapi.get(url)
-        assert(len(response['_items']) < 2)
-        if not response['_items']:
-            return None
+    url = '{}/?{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'],query)
+    response = recastapi.get(url)
+
+    if basic_response_id:
         return response['_items'][0]
+    else:
+        return response['_items']
 
 def response_archive(basic_response_id = None, basic_request_id = None, filename = None):
     if basic_response_id is None:

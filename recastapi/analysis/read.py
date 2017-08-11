@@ -15,3 +15,31 @@ def analysis(analysis_id = None):
         return responses['_items']
     else:
         return responses
+
+def analysis_by_pub_identifier(pubtype, pubid):
+    """List analysis given uuid or all analyses.
+
+    :param uuid: analysis_id.
+
+    :return: JSON object containing all analyses retrieved.
+    """
+
+    query = None
+    if pubtype == 'cds':
+        query = 'cds_id=="{}"'.format(pubid)
+    elif pubtype == 'arxiv':
+        query = 'arxiv_id=="{}"'.format(pubid)
+    elif pubtype == 'inspire':
+        query = 'inspire_id=="{}"'.format(pubid)
+    elif pubtype == 'recast':
+        query = 'id=="{}"'.format(pubid)
+    else:
+        raise NotImplementedError()
+
+    url = '{}{}'.format(recastapi.ENDPOINTS['ANALYSIS'], '?where={}'.format(query))
+    responses = recastapi.get(url)
+
+    if not responses['_items']:
+        return None
+
+    return responses['_items'][0]

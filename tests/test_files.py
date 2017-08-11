@@ -25,10 +25,10 @@ print colored('Adding data into DB, POST METHODS', 'red')
 print colored('Add Analaysis POST METHOD', 'green')
 print recastapi.analysis.create(title='test adding analysis from SDK',
                                 collaboration='CMS',
-                                e_print='http://example.com',
-                                journal='example journal',
                                 doi='1211.121121',
-                                inspire_url='http://example.com',
+                                inspire_id='1234',
+                                arxiv_id='56780',
+                                cds_id='938472',
                                 description='this is a test',
                                 run_condition_name='Name of this run condition',
                                 run_condition_description='and finally the description')

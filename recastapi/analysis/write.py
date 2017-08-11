@@ -3,10 +3,10 @@ import recastapi.user.read
 
 def analysis(title,
              collaboration,
-             e_print,
-             journal,
              doi,
-             inspire_url,
+             arxiv_id,
+             inspire_id,
+             cds_id,
              description,
              run_condition_name,
              run_condition_description):
@@ -14,10 +14,9 @@ def analysis(title,
 
     :param title: Title of the analysis.
     :param collaboration: Choice among: ALICE, ATLAS, CMS, .
-    :param e_print: link.
-    :param journal: Name of journal.
-    :param doi: Arxiv doi?
-    :param inspire_url: URL on inspire website.
+    :param doi:  Digital Object Identifier
+    :param inspire_id: INSPIRE Record identifier
+    :param arxiv_id: link.
     :param description: A detailed description of the analysis.
     :param run_condition_name: Name of the run condition.
     :param run_condition_descprition: Detailed description of the run condition.
@@ -40,10 +39,10 @@ def analysis(title,
         'owner_id':owner_id,
         'title':title,
         'collaboration':collaboration,
-        'e_print':e_print,
-        'journal':journal,
         'doi':doi,
-        'inspire_URL':inspire_url,
+        'arxiv_id':arxiv_id,
+        'inspire_id':inspire_id,
+        'cds_id':cds_id,
         'description':description,
         'run_condition_id':run_condition_id,
         }

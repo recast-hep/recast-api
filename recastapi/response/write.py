@@ -55,7 +55,7 @@ def point_response(scan_response_id,point_request_id,result_data):
     url = '{}/'.format(recastapi.ENDPOINTS['POINT_RESPONSES'])
     return recastapi.post(url, json=payload)
 
-def basic_response(point_response_id,basic_request_id,result_data):
+def basic_response(point_response_id,basic_request_id,result_data, description, replace_existing = True):
     """Adds basic request
     :param point_response_id: ID of the point response
     :param basic_request_id: ID of the basic request
@@ -66,11 +66,13 @@ def basic_response(point_response_id,basic_request_id,result_data):
         'model_id': None,
         'basic_request_id': basic_request_id,
         'point_response_id': point_response_id,
+        'description': description
     }
     payload.update(**result_data)
 
-    existing = recastapi.response.read.basic_response(basic_request_id = basic_request_id)
-    if existing:
+    existing = recastapi.response.read.basic_response(basic_request_id_filter = basic_request_id, description_filter = description)
+    if existing and replace_existing:
+        existing = existing[0]
         url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'],existing['id'])
         existing.update(**payload)
         existing = {k:v for k,v in existing.iteritems() if not (k.startswith('_') or k=='id')}
@@ -79,9 +81,8 @@ def basic_response(point_response_id,basic_request_id,result_data):
     url = '{}/'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'])
     return recastapi.post(url, json=payload)
 
-
-def basic_response_with_archive(point_response_id,basic_request_id,filename, result_data):
-    br = basic_response(point_response_id,basic_request_id,result_data)
+def basic_response_with_archive(point_response_id,basic_request_id,result_data,description,filename):
+    br = basic_response(point_response_id,basic_request_id,result_data,description)
     response_archive(br['id'],filename)
     return br
 

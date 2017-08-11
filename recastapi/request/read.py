@@ -33,13 +33,13 @@ def scan_request(scan_request_id = None, analysis_id = None, query='?max_results
 
 def point_request(point_request_id):
     """" Returns basic JSON. """
-    url = '{}/{}'.format(recastapi.ENDPOINTS['POINT_REQUESTS'], point_request_id)
+    url = '{}/{}/?embedded={{"point_coordinates":1,"requests":1}}'.format(recastapi.ENDPOINTS['POINT_REQUESTS'], point_request_id)
     response = recastapi.get(url)
     return response
 
 def basic_request(basic_request_id):
     """" Returns basic JSON. """
-    url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_REQUESTS'], basic_request_id)
+    url = '{}/{}/?embedded={{"point_request": 1}}'.format(recastapi.ENDPOINTS['BASIC_REQUESTS'], basic_request_id)
     response = recastapi.get(url)
     return response
 
@@ -48,7 +48,7 @@ def point_request_of_scan(scan_request_id, point_request_index=None):
     :param scan_request_id: the request ID to query
     :param point_request_index: starting from 0
     """
-    point_req_url = '{}?where=scan_request_id=="{}"'.format(
+    point_req_url = '{}?embedded={{"point_coordinates":1,"requests": 1}}&where=scan_request_id=="{}"'.format(
         recastapi.ENDPOINTS['POINT_REQUESTS'],
         scan_request_id
     )
@@ -93,7 +93,7 @@ def coordinate(point_request_id, coordinate_index=None):
 
 
 def basic_request_of_point(point_request_id):
-    basic_url = '{}?where=point_request_id=="{}"'.format(
+    basic_url = '{}?embedded={{"point_request": 1}}&where=point_request_id=="{}"'.format(
                         recastapi.ENDPOINTS['BASIC_REQUESTS'],
                         point_request_id)
     return recastapi.get(basic_url)['_items']
