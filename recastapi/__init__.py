@@ -8,6 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 
 SSL_VERIFY = yaml.load(os.environ.get('RECAST_SSL_VERIFY','true'))
+RECAST_PROXIES = yaml.load(os.environ['RECAST_APIPROXY']) if 'RECAST_APIPROXY' in os.environ else {}
 
 def print_failure(response):
     print '-'*60
@@ -38,13 +39,14 @@ def post(url, data=None, params=None, files=None, json=None):
                                 params=params,
                                 files=files,
                                 json=json,
-                                verify = SSL_VERIFY)
+                                verify = SSL_VERIFY,
+                                proxies = RECAST_PROXIES)
     if not response.ok:
         print_failure(response)
     return json_obj.loads(response.content)
 
 def get(url, params=None):
-    response = httprequest.get(url, params=params,verify = SSL_VERIFY)
+    response = httprequest.get(url, params=params, verify = SSL_VERIFY, proxies = RECAST_PROXIES)
     if not response.ok:
         print_failure(response)
     return json_obj.loads(response.content)
