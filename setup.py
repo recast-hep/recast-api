@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name = 'recast-api',
-  version = '0.0.1',
+  version = '0.1.0',
   description = 'RECAST API',
   url = 'http://github.com/recast-hep/recast-api',
   author = 'Kyle Cranmer, Lukas Heinrich',
