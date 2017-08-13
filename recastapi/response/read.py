@@ -82,7 +82,7 @@ def basic_response(basic_response_id =  None, basic_request_id_filter = None, de
 
 def response_archive(basic_response_id = None, basic_request_id = None, filename = None):
     if basic_response_id is None:
-        basic_response_id = recastapi.response.read.basic_response(basic_request_id = basic_request_id )['id']
+        basic_response_id = recastapi.response.read.basic_response(basic_request_id_filter = basic_request_id )['id']
 
     selection_str = '?where=basic_response_id=="{}"'.format(basic_response_id)
     url = '{}{}'.format(recastapi.ENDPOINTS['RESPONSE_ARCHIVES'], selection_str)

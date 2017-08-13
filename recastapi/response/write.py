@@ -73,11 +73,12 @@ def basic_response(point_response_id,basic_request_id,result_data, description, 
     existing = recastapi.response.read.basic_response(basic_request_id_filter = basic_request_id, description_filter = description)
     if existing and replace_existing:
         existing = existing[0]
-        url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'],existing['id'])
+        existing_id = existing['id']
+        url = '{}/{}'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'],existing_id)
         existing.update(**payload)
         existing = {k:v for k,v in existing.iteritems() if not (k.startswith('_') or k=='id')}
         recastapi.patch(url,existing)
-        return recastapi.response.read.basic_response(basic_request_id = basic_request_id)
+        return recastapi.response.read.basic_response(basic_response_id = existing_id)
     url = '{}/'.format(recastapi.ENDPOINTS['BASIC_RESPONSES'])
     return recastapi.post(url, json=payload)
 
